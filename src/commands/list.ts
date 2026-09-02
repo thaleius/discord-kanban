@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editList, getBoard, getBoards, getList, newList } from "../helpers/db";
-import { createListEmbed, SlashCommandBuilder } from "../helpers/utils";
+import { createListReply, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -12,14 +12,14 @@ export default createCommand({
       subcommand
         .setName('view')
         .setDescription("View a List of a Board.")
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('board')
             .setDescription('Name of the Board')
             .setRequired(true)
             .setAutocomplete(true)
         )
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('list')
             .setDescription('Name of the List')
@@ -31,7 +31,7 @@ export default createCommand({
       subcommand
         .setName('new')
         .setDescription('Create a new List.')
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('board')
             .setDescription('Name of the Board')
@@ -55,14 +55,14 @@ export default createCommand({
       subcommand
         .setName('edit')
         .setDescription("Edit a List of a Board.")
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('board')
             .setDescription('Name of the Board')
             .setRequired(true)
             .setAutocomplete(true)
         )
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('list')
             .setDescription('Name of the List to edit.')
@@ -94,28 +94,28 @@ export default createCommand({
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(
-        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.name }))
+        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.id }))
       );
     } else if (focusedOption.name === 'list') {
-      const boardName = interaction.options.getString('board');
-      if (!boardName) return;
+      const boardId = interaction.options.getInteger('board');
+      if (!boardId) return;
 
-      const board = await getBoard(boardName);
+      const board = await getBoard(boardId);
       if (!board) return;
 
       const filtered = board.lists.filter(choice => 
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(
-        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.name }))
+        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.id }))
       );
     }
   },
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === 'view') {
-      const boardName = interaction.options.getString('board');
-      if (!boardName) {
+      const boardId = interaction.options.getInteger('board');
+      if (!boardId) {
         await interaction.reply({
           content: 'You didn\'t select any Board.',
           flags: MessageFlags.Ephemeral
@@ -123,8 +123,8 @@ export default createCommand({
         return;
       }
 
-      const listName = interaction.options.getString('list');
-      if (!listName) {
+      const listId = interaction.options.getInteger('list');
+      if (!listId) {
         await interaction.reply({
           content: 'You didn\'t select any List.',
           flags: MessageFlags.Ephemeral
@@ -132,7 +132,7 @@ export default createCommand({
         return;
       }
 
-      const list = await getList(boardName, listName);
+      const list = await getList(listId);
 
       if (!list) {
         await interaction.reply({
@@ -142,10 +142,7 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply({
-        embeds: [createListEmbed(list)],
-        withResponse: true
-      });
+      await interaction.reply(createListReply(list));
     } else if (subcommand === 'new') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({
@@ -184,11 +181,7 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply({
-        content: `The List _${result.list.name}_ has been created successfully on the Board _${boardName}_.`,
-        embeds: [createListEmbed(result.list)],
-        withResponse: true
-      });
+      await interaction.reply(createListReply(result.list, `The List _${result.list.name}_ has been created successfully on the Board _${boardName}_.`));
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({
@@ -198,8 +191,8 @@ export default createCommand({
         return;
       }
 
-      const boardName = interaction.options.getString('board');
-      if (!boardName) {
+      const boardId = interaction.options.getInteger('board');
+      if (!boardId) {
         await interaction.reply({
           content: 'You must specify a Board.',
           flags: MessageFlags.Ephemeral
@@ -207,8 +200,8 @@ export default createCommand({
         return;
       }
       
-      const listName = interaction.options.getString('list');
-      if (!listName) {
+      const listId = interaction.options.getInteger('list');
+      if (!listId) {
         await interaction.reply({
           content: 'You must specify a List to edit.',
           flags: MessageFlags.Ephemeral
@@ -241,19 +234,15 @@ export default createCommand({
         return;
       }
 
-      const result = await editList(interaction.user, boardName, listName, property, newValue);
+      const result = await editList(interaction.user, listId, property, newValue);
 
-      if (!result.list ||result.error) {
+      if (!result.list) {
         await interaction.reply({
-          content: result.error ?? `An error occured while editing the List _${listName}_.`,
+          content: `An error occured while editing the List _${listId}_.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply({
-          content: `The List _${listName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
-          embeds: [createListEmbed(result.list)],
-          withResponse: true
-        });
+        await interaction.reply(createListReply(result.list, `The List _${listId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`));
       }
       
     }

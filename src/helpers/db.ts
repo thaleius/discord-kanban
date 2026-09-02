@@ -8,9 +8,16 @@ export const ContentInclude = {
   createdBy: true
 };
 
+export const BaseListInclude = {
+  board: true,
+  subscribers: true
+} satisfies Prisma.ListInclude;
+
 export const CardInclude = {
   board: true,
-  list: true,
+  list: {
+    include: BaseListInclude
+  },
   content: {
     include: ContentInclude
   },
@@ -29,7 +36,7 @@ export const CardInclude = {
   },
   attachments: true,
   comments: true
-} satisfies Prisma.Board$cardsArgs['include']; 
+} satisfies Prisma.CardInclude;
 
 export const ListInclude = {
   cards: {
@@ -37,7 +44,7 @@ export const ListInclude = {
   },
   board: true,
   subscribers: true
-} satisfies Prisma.Board$listsArgs['include']; 
+} satisfies Prisma.ListInclude; 
 
 export type BoardWithListCard = Prisma.BoardGetPayload<{
   include: {
@@ -70,8 +77,24 @@ export type ListWithDetails = Prisma.ListGetPayload<{
   include: typeof ListInclude
 }>
 
+export type ListWithBoard = Prisma.ListGetPayload<{
+  include: {
+    board: true
+  }
+}>
+
 export type CardWithDetails = Prisma.CardGetPayload<{
   include: typeof CardInclude
+}>
+
+export type CardWithAssignments= Prisma.CardGetPayload<{
+  include: {
+    assignments: {
+      include: {
+        assignee: true
+      }
+    }
+  }
 }>
 
 export type ContentWithDetails = Prisma.ContentHistoryGetPayload<{
@@ -84,18 +107,34 @@ export const getBoards = async () => {
   return boards;
 }
 
-export const getBoard = async (name: string): Promise<BoardWithListCard | null> => {
+export const getBoard = async (id: number) => {
   const board = await prisma.board.findUnique({
     relationLoadStrategy: "join",
     where: {
-      name: name
+      id: id
     },
     include: {
       cards: {
-        include: CardInclude
+        include: {
+          assignments: {
+            include: {
+              assignee: true
+            }
+          }
+        }
       },
       lists: {
-        include: ListInclude
+        include: {
+          cards: {
+            include: {
+              assignments: {
+                include: {
+                  assignee: true
+                }
+              }
+            }
+          }
+        }
       }
     }
   });
@@ -103,17 +142,11 @@ export const getBoard = async (name: string): Promise<BoardWithListCard | null> 
   return board;
 }
 
-export const getList = async (boardName: string, name: string): Promise<ListWithDetails | null> => {
-  const board = await getBoard(boardName);
-  if (!board) return null;
-
+export const getList = async (id: number): Promise<ListWithDetails | null> => {
   const list = await prisma.list.findUnique({
     relationLoadStrategy: "join",
     where: {
-      name_boardId: {
-        name: name,
-        boardId: board.id
-      }
+      id: id
     },
     include: ListInclude
   });
@@ -121,13 +154,40 @@ export const getList = async (boardName: string, name: string): Promise<ListWith
   return list;
 }
 
-export const getCard = async (boardName: string, cardId: number): Promise<CardWithDetails | null> => {
+export const getBoardList = async (boardName: string, listName: string) => {
+  return await prisma.list.findFirst({
+    where: {
+      name: listName,
+      board: {
+        name: boardName
+      }
+    },
+    select: {
+      id: true,
+      boardId: true
+    }
+  })
+}
+
+export const getCard = async (cardId: number): Promise<CardWithDetails | null> => {
   const card = await prisma.card.findUnique({
     relationLoadStrategy: "join",
     where: {
       id: cardId
     },
-    include: CardInclude
+    include: {
+      ...CardInclude,
+      board: {
+        include: {
+          lists: {
+            include: ListInclude
+          },
+          cards: {
+            include: CardInclude
+          }
+        }
+      }
+    }
   });
 
   return card;
@@ -154,6 +214,9 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
     include: {
       lists: {
         include: ListInclude
+      },
+      cards: {
+        include: CardInclude
       }
     }
   });
@@ -247,10 +310,10 @@ export const newList = async (userInfo: User, boardName: string, listName: strin
   };
 }
 
-export const newCard = async (userInfo: User, boardName: string, listName: string, cardTitle: string, cardContent: string | null, cardUrl: string | null) => {
+export const newCard = async (userInfo: User, boardId: number, listId: number, cardTitle: string, cardContent: string | null, cardUrl: string | null) => {
   const board = await prisma.board.findUnique({
     where: {
-      name: boardName,
+      id: boardId,
     },
     select: {
       id: true,
@@ -274,12 +337,9 @@ export const newCard = async (userInfo: User, boardName: string, listName: strin
     };
   }
 
-  const list = await prisma.list.findFirst({
+  const list = await prisma.list.findUnique({
     where: {
-      name: listName,
-      board: {
-        name: boardName
-      }
+      id: listId
     },
   });
   if (!list) {
@@ -325,7 +385,33 @@ export const newCard = async (userInfo: User, boardName: string, listName: strin
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
-      include: CardInclude
+      include: {
+        board: true,
+        list: {
+          include: {
+            board: true,
+            cards: {
+              include: {
+                assignments: {
+                  include: {
+                    assignee: true
+                  }
+                }
+              }
+            }
+          }
+        },
+        content: {
+          include: {
+            createdBy: true
+          }
+        },
+        assignments: {
+          include: {
+            assignee: true
+          }
+        }
+      }
     });
 
     return [txUser, txCard];
@@ -357,6 +443,9 @@ export const editBoard = async (userInfo: User, boardName: string, property: "na
       include: {
         lists: {
           include: ListInclude
+        },
+        cards: {
+          include: CardInclude
         }
       }
     });
@@ -370,26 +459,16 @@ export const editBoard = async (userInfo: User, boardName: string, property: "na
   }
 }
 
-export const editList = async (userInfo: User, boardName: string, listName: string, property: "name" | "description", newValue: string) => {
+export const editList = async (userInfo: User, listId: number, property: "name" | "description", newValue: string) => {
   const data: Record<string, string> = {};
   data[property] = newValue;
-
-  const board = await getBoard(boardName);
-  if (!board) {
-    return {
-      error: "Board does not exist."
-    }
-  }
 
   const [user, list] = await prisma.$transaction(async (tx) => {
     const txUser = await tx.user.upsert(upsertUser(userInfo));
 
     const txList = await tx.list.update({
       where: {
-        name_boardId: {
-          name: listName,
-          boardId: board.id
-        }
+        id: listId
       },
       data: {
         ...data,
@@ -405,15 +484,7 @@ export const editList = async (userInfo: User, boardName: string, listName: stri
   }
 }
 
-export const editCard = async (userInfo: User, boardName: string, cardId: number, property: "title" | "content" | "url", newValue: string) => {
-
-  const board = await getBoard(boardName);
-  if (!board) {
-    return {
-      error: "Board does not exist."
-    }
-  }
-
+export const editCard = async (userInfo: User, cardId: number, property: "title" | "content" | "url", newValue: string) => {
   const [user, card] = await prisma.$transaction(async (tx) => {
     const txUser = await tx.user.upsert(upsertUser(userInfo));
 
@@ -456,7 +527,11 @@ export const editCard = async (userInfo: User, boardName: string, cardId: number
   }
 }
 
-export const cardAssign = async (assigner: User, cardId: number, assignee: User) => {
+export const cardAssign = async (assigner: User | {
+  id: string, username: string | null, displayName: string | null
+}, cardId: number, assignee: User | {
+  id: string, username: string | null, displayName: string | null
+}) => {
   const card = await prisma.card.findFirst({
     where: {
       id: cardId
@@ -465,6 +540,22 @@ export const cardAssign = async (assigner: User, cardId: number, assignee: User)
       id: true,
       assignments: {
         select: {
+          card: {
+            include: {
+              board: true,
+              list: true,
+              content: {
+                include: {
+                  createdBy: true
+                }
+              },
+              assignments: {
+                include: {
+                  assignee: true
+                }
+              }
+            }
+          },
           assignee: {
             select: {
               discordId: true
@@ -477,8 +568,9 @@ export const cardAssign = async (assigner: User, cardId: number, assignee: User)
 
   if (!card) return { error: "Card does not exist." };
 
-  if (card.assignments.some(assignment => assignment.assignee.discordId === assignee.id)) {
-    return { error: "User is already assigned to this Card." }
+  const existingAssignment = card.assignments.find(assignment => assignment.assignee.discordId === assignee.id);
+  if (existingAssignment) {
+    return { error: "User is already assigned to this Card.", assignment: existingAssignment }
   }
 
   const assignment = await prisma.assignment.create({
@@ -519,7 +611,9 @@ export const cardAssign = async (assigner: User, cardId: number, assignee: User)
   };
 }
 
-export const cardUnassign = async (cardId: number, assignee: User) => {
+export const cardUnassign = async (cardId: number, assignee: User | {
+  id: string, username: string | null, displayName: string | null
+}) => {
   const user = await prisma.user.findUnique({
     where: { discordId: assignee.id },
     select: { id: true }
@@ -556,7 +650,7 @@ export const cardUnassign = async (cardId: number, assignee: User) => {
   };
 }
 
-export const moveCard = async (userInfo: User, boardName: string, cardId: number, targetListName: string) => {
+export const moveCard = async (userInfo: User, cardId: number, targetListId: number) => {
   await prisma.user.upsert(upsertUser(userInfo));
 
   const targetCard = await prisma.card.findFirst({
@@ -565,6 +659,7 @@ export const moveCard = async (userInfo: User, boardName: string, cardId: number
     },
     select: {
       id: true,
+      boardId: true,
       list: {
         select: { name: true }
       }
@@ -581,10 +676,8 @@ export const moveCard = async (userInfo: User, boardName: string, cardId: number
 
   const targetList = await prisma.list.findFirst({
     where: {
-      name: targetListName,
-      board: {
-        name: boardName
-      }
+      id: targetListId,
+      boardId: targetCard.boardId
     },
     select: { id: true }
   });
@@ -606,7 +699,19 @@ export const moveCard = async (userInfo: User, boardName: string, cardId: number
         }
       }
     },
-    include: CardInclude
+    include: {
+      ...CardInclude,
+      board: {
+        include: {
+          lists: {
+            include: ListInclude
+          },
+          cards: {
+            include: CardInclude
+          }
+        }
+      },
+    }
   });
 
   return {

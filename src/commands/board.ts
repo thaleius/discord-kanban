@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editBoard, getBoard, getBoards, newBoard } from "../helpers/db";
-import { createBoardEmbed, SlashCommandBuilder } from "../helpers/utils";
+import { createBoardReply, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -12,7 +12,7 @@ export default createCommand({
       subcommand
         .setName('view')
         .setDescription('View a Board.')
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('board')
             .setDescription('Name of the Board')
@@ -41,7 +41,7 @@ export default createCommand({
       subcommand
         .setName('edit')
         .setDescription('Edit a Board.')
-        .addStringOption((option) =>
+        .addIntegerOption((option) =>
           option
             .setName('board')
             .setDescription('Name of the Board to edit.')
@@ -74,16 +74,16 @@ export default createCommand({
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(
-        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.name }))
+        filtered.slice(0, 25).map(choice => ({ name: choice.name, value: choice.id }))
       );
     }
   },
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === 'view') {
-      const boardName = interaction.options.getString('board');
+      const boardId = interaction.options.getInteger('board');
 
-      if (!boardName) {
+      if (!boardId) {
         await interaction.reply({
           content: 'You didn\'t select any Board.',
           flags: MessageFlags.Ephemeral
@@ -91,7 +91,7 @@ export default createCommand({
         return;
       }
 
-      const board = await getBoard(boardName);
+      const board = await getBoard(boardId);
 
       if (!board) {
         await interaction.reply({
@@ -101,10 +101,7 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply({
-        embeds: [createBoardEmbed(board)],
-        withResponse: true
-      });
+      await interaction.reply(createBoardReply(board));
     } else if (subcommand === 'new') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({
@@ -127,18 +124,14 @@ export default createCommand({
 
       const result = await newBoard(interaction.user, boardName, boardDescription)
 
-      let content = '';
+      let message = '';
       if (result.boardExists) {
-        content = `A Board with the name _${boardName}_ already exists.`;
+        message = `A Board with the name _${boardName}_ already exists.`;
       } else {
-        content = `The Board _${result.board.name}_ has been created successfully.`;
+        message = `The Board _${result.board.name}_ has been created successfully.`;
       }
 
-      await interaction.reply({
-        content: content,
-        embeds: [createBoardEmbed(result.board)],
-        withResponse: true
-      });
+      await interaction.reply(createBoardReply(result.board, message));
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({
@@ -188,11 +181,7 @@ export default createCommand({
         ? `The Board _${boardName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`
         : `An error occured while editing the Board _${boardName}_.`;
 
-      await interaction.reply({
-        content: message,
-        embeds: [createBoardEmbed(result.board)],
-        withResponse: true
-      });
+      await interaction.reply(createBoardReply(result.board, message));
     }
   },
 });
