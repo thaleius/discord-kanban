@@ -31,7 +31,7 @@ export const ListInclude = {
   subscribers: true
 } satisfies Prisma.Board$listsArgs['include']; 
 
-export type BoardWithDetails = Prisma.BoardGetPayload<{
+export type BoardWithListCard = Prisma.BoardGetPayload<{
   include: {
     cards: {
       include: typeof CardInclude
@@ -39,6 +39,22 @@ export type BoardWithDetails = Prisma.BoardGetPayload<{
     lists: {
       include: typeof ListInclude
     }
+  }
+}>
+
+export type BoardWithList = Prisma.BoardGetPayload<{
+  include: {
+    lists: {
+      include: typeof ListInclude
+    },
+  }
+}>
+
+export type BoardWithCard = Prisma.BoardGetPayload<{
+  include: {
+    cards: {
+      include: typeof CardInclude
+    },
   }
 }>
 
@@ -56,7 +72,7 @@ export const getBoards = async () => {
   return boards;
 }
 
-export const getBoard = async (name: string): Promise<BoardWithDetails | null> => {
+export const getBoard = async (name: string): Promise<BoardWithListCard | null> => {
   const board = await prisma.board.findUnique({
     relationLoadStrategy: "join",
     where: {
@@ -123,6 +139,11 @@ const upsertUser = (user: User) => {
 export const newBoard = async (userInfo: User, boardName: string, boardDescription: string | null) => {
   const existingBoard = await prisma.board.findUnique({
     where: { name: boardName },
+    include: {
+      lists: {
+        include: ListInclude
+      }
+    }
   });
 
   if (existingBoard) {
@@ -142,6 +163,14 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
+      include: {
+      lists: {
+        include: ListInclude
+      },
+      cards: {
+        include: CardInclude
+      }
+    }
     });
 
     return [txUser, txBoard];
@@ -172,6 +201,7 @@ export const newList = async (userInfo: User, boardName: string, listName: strin
         name: boardName
       }
     },
+    include: ListInclude
   });
   if (existingList) {
     return {
@@ -194,6 +224,7 @@ export const newList = async (userInfo: User, boardName: string, listName: strin
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
+      include: ListInclude
     });
 
     return [txUser, txList];
@@ -268,6 +299,7 @@ export const newCard = async (userInfo: User, boardName: string, listName: strin
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
+      include: CardInclude
     });
 
     return [txUser, txCard];
@@ -295,6 +327,11 @@ export const editBoard = async (userInfo: User, boardName: string, property: "na
       data: {
         ...data,
         modifiedBy: { connect: { id: txUser.id } }
+      },
+      include: {
+        lists: {
+          include: ListInclude
+        }
       }
     });
     return [txUser, txBoard];
@@ -302,7 +339,8 @@ export const editBoard = async (userInfo: User, boardName: string, property: "na
 
   return {
     success: board[property] === newValue,
-    property, value: board[property]
+    property, value: board[property],
+    board
   }
 }
 
@@ -330,13 +368,14 @@ export const editList = async (userInfo: User, boardName: string, listName: stri
       data: {
         ...data,
         modifiedBy: { connect: { id: txUser.id } }
-      }
+      },
+      include: ListInclude
     });
     return [txUser, txList];
   });
 
   return {
-    property, value: list[property]
+    property, value: list[property], list
   }
 }
 
@@ -361,13 +400,14 @@ export const editCard = async (userInfo: User, boardName: string, cardId: number
       data: {
         ...data,
         modifiedBy: { connect: { id: txUser.id } }
-      }
+      },
+      include: CardInclude
     });
     return [txUser, txCard];
   });
 
   return {
-    property, value: card[property]
+    property, value: card[property], card
   }
 }
 
@@ -421,6 +461,11 @@ export const cardAssign = async (assigner: User, cardId: number, assignee: User)
           },
         },
       },
+    },
+    include: {
+      card: {
+        include: CardInclude
+      }
     }
   });
 
@@ -479,12 +524,7 @@ export const moveCard = async (userInfo: User, boardName: string, cardId: number
         }
       }
     },
-    select: {
-      title: true,
-      list: {
-        select: { name: true }
-      }
-    }
+    include: CardInclude
   });
 
   return {

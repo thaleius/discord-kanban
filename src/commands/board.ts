@@ -1,7 +1,7 @@
-import { APIEmbedField, MessageFlags } from "discord.js";
+import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editBoard, getBoard, getBoards, newBoard } from "../helpers/db";
-import { SlashCommandBuilder, Embed, valueBuilder } from "../helpers/utils";
+import { createBoardEmbed, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -101,19 +101,8 @@ export default createCommand({
         return;
       }
 
-      const fields = board.lists.map(list => {
-        const field: APIEmbedField = {
-          name: list.name,
-          value: valueBuilder(list),
-          inline: true
-        }
-        return field;
-      });
-
-      const embed = Embed(board.name).addFields(fields);
-
       await interaction.reply({
-        embeds: [embed],
+        embeds: [createBoardEmbed(board)],
         withResponse: true
       });
     } else if (subcommand === 'new') {
@@ -138,17 +127,17 @@ export default createCommand({
 
       const result = await newBoard(interaction.user, boardName, boardDescription)
 
+      let content = '';
       if (result.boardExists) {
-        await interaction.reply({
-          content: `A Board with the name _${boardName}_ already exists.`,
-          flags: MessageFlags.Ephemeral
-        });
-        return;
+        content = `A Board with the name _${boardName}_ already exists.`;
+      } else {
+        content = `The Board _${result.board.name}_ has been created successfully.`;
       }
 
       await interaction.reply({
-        content: `The Board _${result.board.name}_ has been created successfully.`,
-        flags: MessageFlags.Ephemeral
+        content: content,
+        embeds: [createBoardEmbed(result.board)],
+        withResponse: true
       });
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
@@ -195,17 +184,15 @@ export default createCommand({
 
       const result = await editBoard(interaction.user, boardName, property, newValue);
 
-      if (result.success) {
-        await interaction.reply({
-          content: `The Board _${boardName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
-          flags: MessageFlags.Ephemeral
-        });
-      } else {
-        await interaction.reply({
-          content: `An error occured while editing the Board _${boardName}_.`,
-          flags: MessageFlags.Ephemeral
-        });
-      }
+      const message = result.success
+        ? `The Board _${boardName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`
+        : `An error occured while editing the Board _${boardName}_.`;
+
+      await interaction.reply({
+        content: message,
+        embeds: [createBoardEmbed(result.board)],
+        withResponse: true
+      });
     }
   },
 });

@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { cardAssign, editCard, getBoard, getBoards, getCard, moveCard, newCard } from "../helpers/db";
-import { SlashCommandBuilder, Embed } from "../helpers/utils";
+import { SlashCommandBuilder, Embed, createCardEmbed } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -247,13 +247,8 @@ export default createCommand({
         return;
       }
 
-      const embed = Embed(card.title, card.board.name + ' | ' + card.list.name)
-      if (card.content) {
-        embed.setDescription(card.content);
-      }
-
       await interaction.reply({
-        embeds: [embed],
+        embeds: [createCardEmbed(card)],
         withResponse: true
       });
     } else if (subcommand === 'new') {
@@ -316,10 +311,18 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply({
-        content: `The Card _${result.card!.title}_ has been created successfully in the List _${listName}_.`,
-        flags: MessageFlags.Ephemeral
-      });
+      if (!result.card) {
+        await interaction.reply({
+          content: `An error occured while creating the Card _${cardTitle}_.`,
+          flags: MessageFlags.Ephemeral
+        });
+      } else {
+        await interaction.reply({
+          content: `The Card _${result.card!.title}_ has been created successfully in the List _${listName}_.`,
+          embeds: [createCardEmbed(result.card)],
+          withResponse: true
+        });
+      }
     } else if (subcommand === 'edit') {
       const boardName = interaction.options.getString('board');
       const cardId = interaction.options.getInteger('card');
@@ -377,15 +380,16 @@ export default createCommand({
 
       const result = await editCard(interaction.user, boardName, cardId, property, newValue);
 
-      if (result.error) {
+      if (!result.card || result.error) {
         await interaction.reply({
-          content: `An error occured while editing the List _${cardId}_: ${result.error}`,
+          content: result.error ?? `An error occured while editing the List _${cardId}_.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: `The Card _${cardId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
-          flags: MessageFlags.Ephemeral
+          embeds: [createCardEmbed(result.card)],
+          withResponse: true
         });
       }
     } else if (subcommand === 'assign') {
@@ -409,15 +413,16 @@ export default createCommand({
 
       const result = await cardAssign(interaction.user, cardId, assignee);
       
-      if (result.error) {
+      if (!result.assignment || result.error) {
         await interaction.reply({
-          content: `An error occured while assigning <@${assignee.id}> to _${cardId}_: ${result.error}`,
+          content: result.error ?? `An error occured while assigning <@${assignee.id}> to _${cardId}_.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: `<@${assignee.id}> has been successfully assigned to _${cardId}_.`,
-          flags: MessageFlags.Ephemeral
+          embeds: [createCardEmbed(result.assignment.card)],
+          withResponse: true
         });
       }
     } else if (subcommand === 'move') {
@@ -446,15 +451,16 @@ export default createCommand({
 
       const result = await moveCard(interaction.user, boardName, cardId, targetListName);
 
-      if (result.error) {
+      if (!result.card || result.error) {
         await interaction.reply({
           content: `An error occured while editing the Card with ID _${cardId}_: ${result.error}`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
-          content: `The Card _${result.card!.title}_ has been successfully moved from _${result.previousList}_ to _${result.card!.list.name}.`,
-          flags: MessageFlags.Ephemeral
+          content: `The Card _${result.card.title}_ has been successfully moved from _${result.previousList}_ to _${result.card.list.name}.`,
+          embeds: [createCardEmbed(result.card)],
+          withResponse: true
         });
       }
     }

@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editList, getBoard, getBoards, getList, newList } from "../helpers/db";
-import { SlashCommandBuilder, Embed, valueBuilder } from "../helpers/utils";
+import { createListEmbed, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -142,14 +142,8 @@ export default createCommand({
         return;
       }
 
-      const embed = Embed(list.name, list.board.name);
-      const content = valueBuilder(list);
-      if (content) {
-        embed.setDescription(content);
-      }
-
       await interaction.reply({
-        embeds: [embed],
+        embeds: [createListEmbed(list)],
         withResponse: true
       });
     } else if (subcommand === 'new') {
@@ -180,19 +174,20 @@ export default createCommand({
         return;
       }
 
-      const result = await newList(interaction.user, boardName, listName)
+      const result = await newList(interaction.user, boardName, listName);
 
-      if (result.error) {
+      if (result.error || !result.list) {
         await interaction.reply({
-          content: result.error,
+          content: result.error ?? 'Failed to create the List.',
           flags: MessageFlags.Ephemeral
         });
         return;
       }
 
       await interaction.reply({
-        content: `The List _${result.list!.name}_ has been created successfully in the Board _${boardName}_.`,
-        flags: MessageFlags.Ephemeral
+        content: `The List _${result.list.name}_ has been created successfully on the Board _${boardName}_.`,
+        embeds: [createListEmbed(result.list)],
+        withResponse: true
       });
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
@@ -248,17 +243,19 @@ export default createCommand({
 
       const result = await editList(interaction.user, boardName, listName, property, newValue);
 
-      if (result.error) {
+      if (!result.list ||result.error) {
         await interaction.reply({
-          content: `An error occured while editing the List _${listName}_: ${result.error}`,
+          content: result.error ?? `An error occured while editing the List _${listName}_.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: `The List _${listName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
-          flags: MessageFlags.Ephemeral
+          embeds: [createListEmbed(result.list)],
+          withResponse: true
         });
       }
+      
     }
   },
 });
