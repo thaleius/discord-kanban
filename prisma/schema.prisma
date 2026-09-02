@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Board {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  description     String?
+  lists           List[]
+  cards           Card[]
+  createdById     Int
+  createdBy       User      @relation("CreatedBoards", fields: [createdById], references: [id])
+  modifiedById    Int
+  modifiedBy      User      @relation("ModifiedBoards", fields: [modifiedById], references: [id])
+  createdAt       DateTime  @default(now())
+  modifiedAt      DateTime  @updatedAt
+}
+
+model List {
+  id              Int       @id @default(autoincrement())
+  name            String
+  description     String?
+  createdById     Int
+  createdBy       User      @relation("CreatedLists", fields: [createdById], references: [id])
+  modifiedById    Int
+  modifiedBy      User      @relation("ModifiedLists", fields: [modifiedById], references: [id])
+  boardId         Int
+  board           Board     @relation(fields: [boardId], references: [id])
+  cards           Card[]
+  subscribers     User[]    @relation("ListSubscribers")
+  createdAt       DateTime  @default(now())
+  modifiedAt      DateTime  @updatedAt
+
+  @@unique([name, boardId])
+}
+
+model Assignment {
+  id              Int             @id @default(autoincrement())
+  assigneeId      Int
+  assignee        User            @relation("Assignees", fields: [assigneeId], references: [id])
+  assignedById    Int
+  assignedBy      User            @relation("Assigners", fields: [assignedById], references: [id])
+  cardId          Int
+  card            Card            @relation(fields: [cardId], references: [id])
+  assignedAt      DateTime        @default(now())
+
+  @@unique([assigneeId, cardId])
+}
+
+model Card {
+  id                Int               @id @default(autoincrement())
+  title             String
+  content           ContentHistory[]
+  createdById       Int
+  createdBy         User              @relation("CreatedCards", fields: [createdById], references: [id])
+  modifiedById      Int
+  modifiedBy        User              @relation("ModifiedCards", fields: [modifiedById], references: [id])
+  assignments       Assignment[]
+  subscribers       User[]            @relation("CardSubscribers")
+  boardId           Int
+  board             Board             @relation(fields: [boardId], references: [id])
+  listId            Int
+  list              List              @relation(fields: [listId], references: [id])
+  tasks             Task[]
+  attachments       Attachment[]
+  comments          CardComment[]
+  url               String?
+  startDate         DateTime?
+  endDate           DateTime?
+  dueDate           DateTime?
+  complete          Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  modifiedAt        DateTime          @updatedAt
+
+  @@unique([title, boardId])
+}
+
+model ContentHistory {
+  id              Int             @id @default(autoincrement())
+  value           String
+  cardId          Int
+  card            Card            @relation(fields: [cardId], references: [id])
+  createdById     Int
+  createdBy       User            @relation(fields: [createdById], references: [id])
+  createdAt       DateTime        @default(now())
+}
+
+model Task {
+  id              Int             @id @default(autoincrement())
+  title           String
+  description     String?
+  cardId          Int
+  card            Card            @relation(fields: [cardId], references: [id])
+  comments        TaskComment[]
+  createdById     Int
+  createdBy       User            @relation("CreatedTasks", fields: [createdById], references: [id])
+  modifiedById    Int
+  modifiedBy      User            @relation("ModifiedTasks", fields: [modifiedById], references: [id])
+  url             String?
+  startDate       DateTime?
+  endDate         DateTime?
+  dueDate         DateTime?
+  complete        Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  modifiedAt      DateTime        @updatedAt
+}
+
+model Attachment {
+  id              Int             @id @default(autoincrement())
+  title           String
+  cardId          Int
+  card            Card            @relation(fields: [cardId], references: [id])
+  url             String?
+  attachedById    Int
+  attachedBy      User            @relation(fields: [attachedById], references: [id])
+  attachedAt      DateTime        @default(now())
+  modifiedAt      DateTime        @updatedAt
+}
+
+model CardComment {
+  id              Int             @id @default(autoincrement())
+  value           String
+  cardId          Int
+  card            Card            @relation(fields: [cardId], references: [id])
+  commentId       Int
+  createdById     Int
+  createdBy       User            @relation(fields: [createdById], references: [id])
+  createdAt       DateTime        @default(now())
+  modifiedAt      DateTime        @updatedAt
+}
+
+model TaskComment {
+  id              Int             @id @default(autoincrement())
+  value           String
+  taskId          Int
+  task            Task            @relation(fields: [taskId], references: [id])
+  commentId       Int
+  createdById     Int
+  createdBy       User            @relation(fields: [createdById], references: [id])
+  createdAt       DateTime        @default(now())
+  modifiedAt      DateTime        @updatedAt
+}
+
+model User {
+  id                    Int               @id @default(autoincrement())
+  discordId             String            @unique
+  username              String?
+  displayName           String?
+  createdLists          List[]            @relation("CreatedLists")
+  createdBoards         Board[]           @relation("CreatedBoards")
+  createdCards          Card[]            @relation("CreatedCards")
+  createdTasks          Task[]            @relation("CreatedTasks")
+  editedContent         ContentHistory[]
+  modifiedLists         List[]            @relation("ModifiedLists")
+  modifiedCards         Card[]            @relation("ModifiedCards")
+  modifiedBoards        Board[]           @relation("ModifiedBoards")
+  modifiedTasks         Task[]            @relation("ModifiedTasks")
+  createdCardComments   CardComment[]
+  createdTaskComments   TaskComment[]
+  attachments           Attachment[]
+  assignments           Assignment[]      @relation("Assignees")
+  assigned              Assignment[]      @relation("Assigners")
+  subscribedLists       List[]            @relation("ListSubscribers")
+  subscribedCards       Card[]            @relation("CardSubscribers")
+  updatedAt             DateTime          @updatedAt
+  createdAt             DateTime          @default(now())
+}

@@ -3,11 +3,9 @@ node_modules
 .env
 config.json
 
-/generated/prisma
+src/generated/prisma
 node_modules/
 dist/
 
-/generated/prisma
-
 /.temp
-/prisma
+/prisma/migrations
