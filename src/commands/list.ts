@@ -152,15 +152,15 @@ export default createCommand({
         return;
       }
 
-      const boardName = interaction.options.getString('board');
+      const boardId = interaction.options.getInteger('board');
       const listName = interaction.options.getString('name');
 
-      if (!boardName || !listName) {
+      if (!boardId || !listName) {
         const errorMsg = [];
         if (!listName) {
           errorMsg.push('a name for the new List');
         }
-        if (!boardName) {
+        if (!boardId) {
           errorMsg.push('a Board to add the new List to');
         }
         const last = errorMsg.pop();
@@ -171,7 +171,7 @@ export default createCommand({
         return;
       }
 
-      const result = await newList(interaction.user, boardName, listName);
+      const result = await newList(interaction.user, boardId, listName);
 
       if (result.error || !result.list) {
         await interaction.reply({
@@ -181,7 +181,7 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply(createListReply(result.list, `The List _${result.list.name}_ has been created successfully on the Board _${boardName}_.`));
+      await interaction.reply(createListReply(result.list, `The List _${result.list.name}_ has been created successfully on the Board _${boardId}_.`));
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({

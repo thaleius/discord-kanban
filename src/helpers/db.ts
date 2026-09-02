@@ -257,15 +257,15 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
   };
 }
 
-export const newList = async (userInfo: User, boardName: string, listName: string) => {
+export const newList = async (userInfo: User, boardId: number, listName: string) => {
   const board = await prisma.board.findUnique({
     where: {
-      name: boardName
+      id: boardId
     }
   });
   if (!board) {
     return {
-      error: `A Board with the name ${boardName} does not exist.`
+      error: `A Board with the ID \`${boardId}\` does not exist.`
     }; 
   }
 
@@ -273,14 +273,14 @@ export const newList = async (userInfo: User, boardName: string, listName: strin
     where: {
       name: listName,
       board: {
-        name: boardName
+        id: boardId
       }
     },
     include: ListInclude
   });
   if (existingList) {
     return {
-      error: `A List with the name _${listName}_ already exists in the Board _${boardName}_.`,
+      error: `A List with the name _${listName}_ already exists in the Board _${existingList.board.name}_.`,
       list: existingList
     }; 
   }
@@ -293,7 +293,7 @@ export const newList = async (userInfo: User, boardName: string, listName: strin
         name: listName,
         board: {
           connect: {
-            name: boardName
+            id: boardId
           }
         },
         createdBy: { connect: { id: txUser.id } },

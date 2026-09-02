@@ -4,7 +4,7 @@ import { Assignment, Board, Card, ContentHistory, List, Prisma } from "../genera
 
 export const Embed = (title: string, subtitle: string | null = null) => {
   return new EmbedBuilder()
-    .setColor(`#${EMBED.COLOR.replaceAll('#', '')}`)
+    .setColor(`#${EMBED.COLOR ? EMBED.COLOR.replaceAll('#', '') : '003153'}`)
     .setTitle(title)
     .setFooter(subtitle ? { text: subtitle } : null)
     .setAuthor({

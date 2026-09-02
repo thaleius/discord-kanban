@@ -166,7 +166,7 @@ async function main() {
           .setRequired(false);
 
         const titleInputLabel = new LabelBuilder()
-          .setLabel('Name:')
+          .setLabel('Title:')
           .setTextInputComponent(titleInput);
 
         const contentInputLabel = new LabelBuilder()
@@ -236,6 +236,11 @@ async function main() {
           await interaction.update({
             content: 'Board does not exist.'
           });
+          return;
+        }
+
+        if (board.cards.length === 0) {
+          await interaction.update("No cards to move.");
           return;
         }
 
