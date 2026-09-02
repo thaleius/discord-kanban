@@ -228,6 +228,7 @@ export type UserWhereInput = {
   createdBoards?: Prisma.BoardListRelationFilter
   createdCards?: Prisma.CardListRelationFilter
   createdTasks?: Prisma.TaskListRelationFilter
+  editedContent?: Prisma.ContentHistoryListRelationFilter
   modifiedLists?: Prisma.ListListRelationFilter
   modifiedCards?: Prisma.CardListRelationFilter
   modifiedBoards?: Prisma.BoardListRelationFilter
@@ -252,6 +253,7 @@ export type UserOrderByWithRelationInput = {
   createdBoards?: Prisma.BoardOrderByRelationAggregateInput
   createdCards?: Prisma.CardOrderByRelationAggregateInput
   createdTasks?: Prisma.TaskOrderByRelationAggregateInput
+  editedContent?: Prisma.ContentHistoryOrderByRelationAggregateInput
   modifiedLists?: Prisma.ListOrderByRelationAggregateInput
   modifiedCards?: Prisma.CardOrderByRelationAggregateInput
   modifiedBoards?: Prisma.BoardOrderByRelationAggregateInput
@@ -279,6 +281,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdBoards?: Prisma.BoardListRelationFilter
   createdCards?: Prisma.CardListRelationFilter
   createdTasks?: Prisma.TaskListRelationFilter
+  editedContent?: Prisma.ContentHistoryListRelationFilter
   modifiedLists?: Prisma.ListListRelationFilter
   modifiedCards?: Prisma.CardListRelationFilter
   modifiedBoards?: Prisma.BoardListRelationFilter
@@ -328,6 +331,7 @@ export type UserCreateInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -352,6 +356,7 @@ export type UserUncheckedCreateInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -375,6 +380,7 @@ export type UserUpdateInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -399,6 +405,7 @@ export type UserUncheckedUpdateInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -676,6 +683,20 @@ export type UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserCreateNestedOneWithoutEditedContentInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEditedContentInput, Prisma.UserUncheckedCreateWithoutEditedContentInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEditedContentInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutEditedContentNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEditedContentInput, Prisma.UserUncheckedCreateWithoutEditedContentInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEditedContentInput
+  upsert?: Prisma.UserUpsertWithoutEditedContentInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedContentInput, Prisma.UserUpdateWithoutEditedContentInput>, Prisma.UserUncheckedUpdateWithoutEditedContentInput>
+}
+
 export type UserCreateNestedOneWithoutCreatedTasksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedTasksInput, Prisma.UserUncheckedCreateWithoutCreatedTasksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedTasksInput
@@ -755,6 +776,7 @@ export type UserCreateWithoutCreatedBoardsInput = {
   createdLists?: Prisma.ListCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -778,6 +800,7 @@ export type UserUncheckedCreateWithoutCreatedBoardsInput = {
   createdLists?: Prisma.ListUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -806,6 +829,7 @@ export type UserCreateWithoutModifiedBoardsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskCreateNestedManyWithoutModifiedByInput
@@ -829,6 +853,7 @@ export type UserUncheckedCreateWithoutModifiedBoardsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutModifiedByInput
@@ -866,6 +891,7 @@ export type UserUpdateWithoutCreatedBoardsInput = {
   createdLists?: Prisma.ListUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -889,6 +915,7 @@ export type UserUncheckedUpdateWithoutCreatedBoardsInput = {
   createdLists?: Prisma.ListUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -923,6 +950,7 @@ export type UserUpdateWithoutModifiedBoardsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUpdateManyWithoutModifiedByNestedInput
@@ -946,6 +974,7 @@ export type UserUncheckedUpdateWithoutModifiedBoardsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -967,6 +996,7 @@ export type UserCreateWithoutCreatedListsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -990,6 +1020,7 @@ export type UserUncheckedCreateWithoutCreatedListsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1018,6 +1049,7 @@ export type UserCreateWithoutModifiedListsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskCreateNestedManyWithoutModifiedByInput
@@ -1041,6 +1073,7 @@ export type UserUncheckedCreateWithoutModifiedListsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1068,6 +1101,7 @@ export type UserCreateWithoutSubscribedListsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1091,6 +1125,7 @@ export type UserUncheckedCreateWithoutSubscribedListsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1128,6 +1163,7 @@ export type UserUpdateWithoutCreatedListsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1151,6 +1187,7 @@ export type UserUncheckedUpdateWithoutCreatedListsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1185,6 +1222,7 @@ export type UserUpdateWithoutModifiedListsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUpdateManyWithoutModifiedByNestedInput
@@ -1208,6 +1246,7 @@ export type UserUncheckedUpdateWithoutModifiedListsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1258,6 +1297,7 @@ export type UserCreateWithoutAssignmentsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1281,6 +1321,7 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1308,6 +1349,7 @@ export type UserCreateWithoutAssignedInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1331,6 +1373,7 @@ export type UserUncheckedCreateWithoutAssignedInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1369,6 +1412,7 @@ export type UserUpdateWithoutAssignmentsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1392,6 +1436,7 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1425,6 +1470,7 @@ export type UserUpdateWithoutAssignedInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1448,6 +1494,7 @@ export type UserUncheckedUpdateWithoutAssignedInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1469,6 +1516,7 @@ export type UserCreateWithoutCreatedCardsInput = {
   createdLists?: Prisma.ListCreateNestedManyWithoutCreatedByInput
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1492,6 +1540,7 @@ export type UserUncheckedCreateWithoutCreatedCardsInput = {
   createdLists?: Prisma.ListUncheckedCreateNestedManyWithoutCreatedByInput
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1520,6 +1569,7 @@ export type UserCreateWithoutModifiedCardsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskCreateNestedManyWithoutModifiedByInput
@@ -1543,6 +1593,7 @@ export type UserUncheckedCreateWithoutModifiedCardsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1570,6 +1621,7 @@ export type UserCreateWithoutSubscribedCardsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1593,6 +1645,7 @@ export type UserUncheckedCreateWithoutSubscribedCardsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1630,6 +1683,7 @@ export type UserUpdateWithoutCreatedCardsInput = {
   createdLists?: Prisma.ListUpdateManyWithoutCreatedByNestedInput
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1653,6 +1707,7 @@ export type UserUncheckedUpdateWithoutCreatedCardsInput = {
   createdLists?: Prisma.ListUncheckedUpdateManyWithoutCreatedByNestedInput
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1687,6 +1742,7 @@ export type UserUpdateWithoutModifiedCardsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUpdateManyWithoutModifiedByNestedInput
@@ -1710,6 +1766,7 @@ export type UserUncheckedUpdateWithoutModifiedCardsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedTasks?: Prisma.TaskUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1738,6 +1795,116 @@ export type UserUpdateManyWithWhereWithoutSubscribedCardsInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsInput>
 }
 
+export type UserCreateWithoutEditedContentInput = {
+  discordId: string
+  username?: string | null
+  displayName?: string | null
+  updatedAt?: Date | string
+  createdAt?: Date | string
+  createdLists?: Prisma.ListCreateNestedManyWithoutCreatedByInput
+  createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
+  createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
+  modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
+  modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
+  modifiedTasks?: Prisma.TaskCreateNestedManyWithoutModifiedByInput
+  createdCardComments?: Prisma.CardCommentCreateNestedManyWithoutCreatedByInput
+  createdTaskComments?: Prisma.TaskCommentCreateNestedManyWithoutCreatedByInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutAttachedByInput
+  assignments?: Prisma.AssignmentCreateNestedManyWithoutAssigneeInput
+  assigned?: Prisma.AssignmentCreateNestedManyWithoutAssignedByInput
+  subscribedLists?: Prisma.ListCreateNestedManyWithoutSubscribersInput
+  subscribedCards?: Prisma.CardCreateNestedManyWithoutSubscribersInput
+}
+
+export type UserUncheckedCreateWithoutEditedContentInput = {
+  id?: number
+  discordId: string
+  username?: string | null
+  displayName?: string | null
+  updatedAt?: Date | string
+  createdAt?: Date | string
+  createdLists?: Prisma.ListUncheckedCreateNestedManyWithoutCreatedByInput
+  createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
+  createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
+  modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
+  modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
+  modifiedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutModifiedByInput
+  createdCardComments?: Prisma.CardCommentUncheckedCreateNestedManyWithoutCreatedByInput
+  createdTaskComments?: Prisma.TaskCommentUncheckedCreateNestedManyWithoutCreatedByInput
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutAttachedByInput
+  assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutAssigneeInput
+  assigned?: Prisma.AssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+  subscribedLists?: Prisma.ListUncheckedCreateNestedManyWithoutSubscribersInput
+  subscribedCards?: Prisma.CardUncheckedCreateNestedManyWithoutSubscribersInput
+}
+
+export type UserCreateOrConnectWithoutEditedContentInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEditedContentInput, Prisma.UserUncheckedCreateWithoutEditedContentInput>
+}
+
+export type UserUpsertWithoutEditedContentInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEditedContentInput, Prisma.UserUncheckedUpdateWithoutEditedContentInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEditedContentInput, Prisma.UserUncheckedCreateWithoutEditedContentInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEditedContentInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEditedContentInput, Prisma.UserUncheckedUpdateWithoutEditedContentInput>
+}
+
+export type UserUpdateWithoutEditedContentInput = {
+  discordId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdLists?: Prisma.ListUpdateManyWithoutCreatedByNestedInput
+  createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
+  createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
+  modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
+  modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
+  modifiedTasks?: Prisma.TaskUpdateManyWithoutModifiedByNestedInput
+  createdCardComments?: Prisma.CardCommentUpdateManyWithoutCreatedByNestedInput
+  createdTaskComments?: Prisma.TaskCommentUpdateManyWithoutCreatedByNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutAttachedByNestedInput
+  assignments?: Prisma.AssignmentUpdateManyWithoutAssigneeNestedInput
+  assigned?: Prisma.AssignmentUpdateManyWithoutAssignedByNestedInput
+  subscribedLists?: Prisma.ListUpdateManyWithoutSubscribersNestedInput
+  subscribedCards?: Prisma.CardUpdateManyWithoutSubscribersNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEditedContentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  discordId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdLists?: Prisma.ListUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
+  modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
+  modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
+  modifiedTasks?: Prisma.TaskUncheckedUpdateManyWithoutModifiedByNestedInput
+  createdCardComments?: Prisma.CardCommentUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdTaskComments?: Prisma.TaskCommentUncheckedUpdateManyWithoutCreatedByNestedInput
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutAttachedByNestedInput
+  assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutAssigneeNestedInput
+  assigned?: Prisma.AssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+  subscribedLists?: Prisma.ListUncheckedUpdateManyWithoutSubscribersNestedInput
+  subscribedCards?: Prisma.CardUncheckedUpdateManyWithoutSubscribersNestedInput
+}
+
 export type UserCreateWithoutCreatedTasksInput = {
   discordId: string
   username?: string | null
@@ -1747,6 +1914,7 @@ export type UserCreateWithoutCreatedTasksInput = {
   createdLists?: Prisma.ListCreateNestedManyWithoutCreatedByInput
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1770,6 +1938,7 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   createdLists?: Prisma.ListUncheckedCreateNestedManyWithoutCreatedByInput
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1798,6 +1967,7 @@ export type UserCreateWithoutModifiedTasksInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1821,6 +1991,7 @@ export type UserUncheckedCreateWithoutModifiedTasksInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -1858,6 +2029,7 @@ export type UserUpdateWithoutCreatedTasksInput = {
   createdLists?: Prisma.ListUpdateManyWithoutCreatedByNestedInput
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1881,6 +2053,7 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   createdLists?: Prisma.ListUncheckedUpdateManyWithoutCreatedByNestedInput
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1915,6 +2088,7 @@ export type UserUpdateWithoutModifiedTasksInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -1938,6 +2112,7 @@ export type UserUncheckedUpdateWithoutModifiedTasksInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -1960,6 +2135,7 @@ export type UserCreateWithoutAttachmentsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -1983,6 +2159,7 @@ export type UserUncheckedCreateWithoutAttachmentsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -2021,6 +2198,7 @@ export type UserUpdateWithoutAttachmentsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -2044,6 +2222,7 @@ export type UserUncheckedUpdateWithoutAttachmentsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -2066,6 +2245,7 @@ export type UserCreateWithoutCreatedCardCommentsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -2089,6 +2269,7 @@ export type UserUncheckedCreateWithoutCreatedCardCommentsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -2127,6 +2308,7 @@ export type UserUpdateWithoutCreatedCardCommentsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -2150,6 +2332,7 @@ export type UserUncheckedUpdateWithoutCreatedCardCommentsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -2172,6 +2355,7 @@ export type UserCreateWithoutCreatedTaskCommentsInput = {
   createdBoards?: Prisma.BoardCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardCreateNestedManyWithoutModifiedByInput
@@ -2195,6 +2379,7 @@ export type UserUncheckedCreateWithoutCreatedTaskCommentsInput = {
   createdBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutCreatedByInput
   createdCards?: Prisma.CardUncheckedCreateNestedManyWithoutCreatedByInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  editedContent?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedLists?: Prisma.ListUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedCards?: Prisma.CardUncheckedCreateNestedManyWithoutModifiedByInput
   modifiedBoards?: Prisma.BoardUncheckedCreateNestedManyWithoutModifiedByInput
@@ -2233,6 +2418,7 @@ export type UserUpdateWithoutCreatedTaskCommentsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -2256,6 +2442,7 @@ export type UserUncheckedUpdateWithoutCreatedTaskCommentsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -2278,6 +2465,7 @@ export type UserUpdateWithoutSubscribedListsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -2301,6 +2489,7 @@ export type UserUncheckedUpdateWithoutSubscribedListsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -2332,6 +2521,7 @@ export type UserUpdateWithoutSubscribedCardsInput = {
   createdBoards?: Prisma.BoardUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUpdateManyWithoutModifiedByNestedInput
@@ -2355,6 +2545,7 @@ export type UserUncheckedUpdateWithoutSubscribedCardsInput = {
   createdBoards?: Prisma.BoardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdCards?: Prisma.CardUncheckedUpdateManyWithoutCreatedByNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  editedContent?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedLists?: Prisma.ListUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedCards?: Prisma.CardUncheckedUpdateManyWithoutModifiedByNestedInput
   modifiedBoards?: Prisma.BoardUncheckedUpdateManyWithoutModifiedByNestedInput
@@ -2386,6 +2577,7 @@ export type UserCountOutputType = {
   createdBoards: number
   createdCards: number
   createdTasks: number
+  editedContent: number
   modifiedLists: number
   modifiedCards: number
   modifiedBoards: number
@@ -2404,6 +2596,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   createdBoards?: boolean | UserCountOutputTypeCountCreatedBoardsArgs
   createdCards?: boolean | UserCountOutputTypeCountCreatedCardsArgs
   createdTasks?: boolean | UserCountOutputTypeCountCreatedTasksArgs
+  editedContent?: boolean | UserCountOutputTypeCountEditedContentArgs
   modifiedLists?: boolean | UserCountOutputTypeCountModifiedListsArgs
   modifiedCards?: boolean | UserCountOutputTypeCountModifiedCardsArgs
   modifiedBoards?: boolean | UserCountOutputTypeCountModifiedBoardsArgs
@@ -2453,6 +2646,13 @@ export type UserCountOutputTypeCountCreatedCardsArgs<ExtArgs extends runtime.Typ
  */
 export type UserCountOutputTypeCountCreatedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEditedContentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentHistoryWhereInput
 }
 
 /**
@@ -2544,6 +2744,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdBoards?: boolean | Prisma.User$createdBoardsArgs<ExtArgs>
   createdCards?: boolean | Prisma.User$createdCardsArgs<ExtArgs>
   createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
+  editedContent?: boolean | Prisma.User$editedContentArgs<ExtArgs>
   modifiedLists?: boolean | Prisma.User$modifiedListsArgs<ExtArgs>
   modifiedCards?: boolean | Prisma.User$modifiedCardsArgs<ExtArgs>
   modifiedBoards?: boolean | Prisma.User$modifiedBoardsArgs<ExtArgs>
@@ -2591,6 +2792,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdBoards?: boolean | Prisma.User$createdBoardsArgs<ExtArgs>
   createdCards?: boolean | Prisma.User$createdCardsArgs<ExtArgs>
   createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
+  editedContent?: boolean | Prisma.User$editedContentArgs<ExtArgs>
   modifiedLists?: boolean | Prisma.User$modifiedListsArgs<ExtArgs>
   modifiedCards?: boolean | Prisma.User$modifiedCardsArgs<ExtArgs>
   modifiedBoards?: boolean | Prisma.User$modifiedBoardsArgs<ExtArgs>
@@ -2614,6 +2816,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdBoards: Prisma.$BoardPayload<ExtArgs>[]
     createdCards: Prisma.$CardPayload<ExtArgs>[]
     createdTasks: Prisma.$TaskPayload<ExtArgs>[]
+    editedContent: Prisma.$ContentHistoryPayload<ExtArgs>[]
     modifiedLists: Prisma.$ListPayload<ExtArgs>[]
     modifiedCards: Prisma.$CardPayload<ExtArgs>[]
     modifiedBoards: Prisma.$BoardPayload<ExtArgs>[]
@@ -3031,6 +3234,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   createdBoards<T extends Prisma.User$createdBoardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdBoardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCards<T extends Prisma.User$createdCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdTasks<T extends Prisma.User$createdTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  editedContent<T extends Prisma.User$editedContentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedContentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modifiedLists<T extends Prisma.User$modifiedListsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedListsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modifiedCards<T extends Prisma.User$modifiedCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modifiedBoards<T extends Prisma.User$modifiedBoardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedBoardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3572,6 +3776,30 @@ export type User$createdTasksArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * User.editedContent
+ */
+export type User$editedContentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentHistory
+   */
+  select?: Prisma.ContentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentHistory
+   */
+  omit?: Prisma.ContentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentHistoryInclude<ExtArgs> | null
+  where?: Prisma.ContentHistoryWhereInput
+  orderBy?: Prisma.ContentHistoryOrderByWithRelationInput | Prisma.ContentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.ContentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentHistoryScalarFieldEnum | Prisma.ContentHistoryScalarFieldEnum[]
 }
 
 /**

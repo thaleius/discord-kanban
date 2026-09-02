@@ -246,6 +246,7 @@ export type AssignmentOrderByWithRelationInput = {
 
 export type AssignmentWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  assigneeId_cardId?: Prisma.AssignmentAssigneeIdCardIdCompoundUniqueInput
   AND?: Prisma.AssignmentWhereInput | Prisma.AssignmentWhereInput[]
   OR?: Prisma.AssignmentWhereInput[]
   NOT?: Prisma.AssignmentWhereInput | Prisma.AssignmentWhereInput[]
@@ -256,7 +257,7 @@ export type AssignmentWhereUniqueInput = Prisma.AtLeast<{
   assignee?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   card?: Prisma.XOR<Prisma.CardScalarRelationFilter, Prisma.CardWhereInput>
-}, "id">
+}, "id" | "assigneeId_cardId">
 
 export type AssignmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -330,6 +331,11 @@ export type AssignmentUncheckedUpdateManyInput = {
   assignedById?: Prisma.IntFieldUpdateOperationsInput | number
   cardId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AssignmentAssigneeIdCardIdCompoundUniqueInput = {
+  assigneeId: number
+  cardId: number
 }
 
 export type AssignmentCountOrderByAggregateInput = {

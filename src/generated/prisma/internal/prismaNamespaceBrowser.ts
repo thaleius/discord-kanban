@@ -55,6 +55,7 @@ export const ModelName = {
   List: 'List',
   Assignment: 'Assignment',
   Card: 'Card',
+  ContentHistory: 'ContentHistory',
   Task: 'Task',
   Attachment: 'Attachment',
   CardComment: 'CardComment',
@@ -127,7 +128,6 @@ export type AssignmentScalarFieldEnum = (typeof AssignmentScalarFieldEnum)[keyof
 export const CardScalarFieldEnum = {
   id: 'id',
   title: 'title',
-  content: 'content',
   createdById: 'createdById',
   modifiedById: 'modifiedById',
   boardId: 'boardId',
@@ -142,6 +142,17 @@ export const CardScalarFieldEnum = {
 } as const
 
 export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
+
+
+export const ContentHistoryScalarFieldEnum = {
+  id: 'id',
+  value: 'value',
+  cardId: 'cardId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ContentHistoryScalarFieldEnum = (typeof ContentHistoryScalarFieldEnum)[keyof typeof ContentHistoryScalarFieldEnum]
 
 
 export const TaskScalarFieldEnum = {

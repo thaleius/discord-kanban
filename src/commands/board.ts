@@ -26,7 +26,7 @@ export default createCommand({
         .setDescription('Create a new Board.')
         .addStringOption((option) =>
           option
-            .setName('board')
+            .setName('name')
             .setDescription('Name of the Board')
             .setRequired(true)
         )

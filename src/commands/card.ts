@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
-import { cardAssign, editCard, getBoard, getBoards, getCard, moveCard, newCard } from "../helpers/db";
-import { SlashCommandBuilder, Embed, createCardEmbed } from "../helpers/utils";
+import { cardAssign, cardUnassign, editCard, getBoard, getBoards, getCard, getCardHistory, moveCard, newCard } from "../helpers/db";
+import { SlashCommandBuilder, createCardEmbed } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -37,7 +37,7 @@ export default createCommand({
     .addSubcommand((subcommand) =>
       subcommand
         .setName('new')
-        .setDescription('Create a new List.')
+        .setDescription('Create a new Card.')
         .addStringOption((option) =>
           option
             .setName('board')
@@ -148,6 +148,31 @@ export default createCommand({
     )
     .addSubcommand((subcommand) =>
       subcommand
+        .setName('unassign')
+        .setDescription('Unassign a user to from Card.')
+        .addStringOption((option) =>
+          option
+            .setName('board')
+            .setDescription('Name of the Board')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+          option
+            .setName('card')
+            .setDescription('Card to assign a user to.')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
+        .addUserOption((option) =>
+          option
+            .setName('assignee')
+            .setDescription('User to unassign from the Card.')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
         .setName('move')
         .setDescription('Move a Card to another List.')
         .addStringOption((option) =>
@@ -178,7 +203,26 @@ export default createCommand({
             .setRequired(true)
             .setAutocomplete(true)
         )
-    ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName('history')
+        .setDescription('View the content history of a Card.')
+        .addStringOption((option) =>
+          option
+            .setName('board')
+            .setDescription('Name of the Board')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
+        .addIntegerOption((option) =>
+          option
+            .setName('card')
+            .setDescription('Name of the Card')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
+      ),
   async autocomplete(interaction) {
     const focusedOption = interaction.options.getFocused(true);
     if (focusedOption.name === 'board') {
@@ -382,12 +426,12 @@ export default createCommand({
 
       if (!result.card || result.error) {
         await interaction.reply({
-          content: result.error ?? `An error occured while editing the List _${cardId}_.`,
+          content: result.error ?? `An error occured while editing the List \`${cardId}\`.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
-          content: `The Card _${cardId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
+          content: `The Card \`${cardId}\` has been edited successfully. Its new _${result.property}_ is _${result.value}_.`,
           embeds: [createCardEmbed(result.card)],
           withResponse: true
         });
@@ -415,13 +459,46 @@ export default createCommand({
       
       if (!result.assignment || result.error) {
         await interaction.reply({
-          content: result.error ?? `An error occured while assigning <@${assignee.id}> to _${cardId}_.`,
+          content: result.error ?? `An error occured while assigning <@${assignee.id}> to \`${cardId}\`.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
-          content: `<@${assignee.id}> has been successfully assigned to _${cardId}_.`,
+          content: `<@${assignee.id}> has been successfully assigned to \`${cardId}\`.`,
           embeds: [createCardEmbed(result.assignment.card)],
+          withResponse: true
+        });
+      }
+    } else if (subcommand === 'unassign') {
+      const cardId = interaction.options.getInteger('card');
+      if (!cardId) {
+        await interaction.reply({
+          content: 'You didn\'t select any Card.',
+          flags: MessageFlags.Ephemeral
+        });
+        return;
+      }
+
+      const assignee = interaction.options.getUser('assignee');
+      if (!assignee) {
+        await interaction.reply({
+          content: 'You didn\'t select any User to unassign.',
+          flags: MessageFlags.Ephemeral
+        });
+        return;
+      }
+
+      const result = await cardUnassign(cardId, assignee);
+      
+      if (result.error) {
+        await interaction.reply({
+          content: result.error ?? `An error occured while unassigning <@${assignee.id}> from Card \`${cardId}\`.`,
+          flags: MessageFlags.Ephemeral
+        });
+      } else {
+        await interaction.reply({
+          content: `<@${assignee.id}> has been successfully unassigned from \`${cardId}\`.`,
+          embeds: result.card ? [createCardEmbed(result.card)] : undefined,
           withResponse: true
         });
       }
@@ -438,7 +515,7 @@ export default createCommand({
         if (!cardId) {
           errorMsg.push('a Card to edit');
         }
-        if (!cardId) {
+        if (!targetListName) {
           errorMsg.push('a target List');
         }
         const last = errorMsg.pop();
@@ -453,13 +530,46 @@ export default createCommand({
 
       if (!result.card || result.error) {
         await interaction.reply({
-          content: `An error occured while editing the Card with ID _${cardId}_: ${result.error}`,
+          content: `An error occured while editing the Card with ID \`${cardId}\`: ${result.error}`,
           flags: MessageFlags.Ephemeral
         });
       } else {
         await interaction.reply({
           content: `The Card _${result.card.title}_ has been successfully moved from _${result.previousList}_ to _${result.card.list.name}.`,
           embeds: [createCardEmbed(result.card)],
+          withResponse: true
+        });
+      }
+    } else if (subcommand === 'history') {
+      const boardName = interaction.options.getString('board');
+      const cardId = interaction.options.getInteger('card');
+
+      if (!boardName || !cardId) {
+        const errorMsg = [];
+        if (!boardName) {
+          errorMsg.push('a Board');
+        }
+        if (!cardId) {
+          errorMsg.push('a Card to edit');
+        }
+        const last = errorMsg.pop();
+        await interaction.reply({
+          content: `You must specify ${errorMsg.join(', ') + ' and ' + last}.`,
+          flags: MessageFlags.Ephemeral
+        });
+        return;
+      }
+
+      const result = await getCardHistory(cardId);
+
+      if (!result.card || result.error) {
+        await interaction.reply({
+          content: result.error ?? `An error occured while fetching the content history of the Card with ID \`${cardId}\`.`,
+          flags: MessageFlags.Ephemeral
+        });
+      } else {
+        await interaction.reply({
+          embeds: [createCardEmbed(result.card, true)],
           withResponse: true
         });
       }

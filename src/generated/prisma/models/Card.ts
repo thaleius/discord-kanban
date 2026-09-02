@@ -45,7 +45,6 @@ export type CardSumAggregateOutputType = {
 export type CardMinAggregateOutputType = {
   id: number | null
   title: string | null
-  content: string | null
   createdById: number | null
   modifiedById: number | null
   boardId: number | null
@@ -62,7 +61,6 @@ export type CardMinAggregateOutputType = {
 export type CardMaxAggregateOutputType = {
   id: number | null
   title: string | null
-  content: string | null
   createdById: number | null
   modifiedById: number | null
   boardId: number | null
@@ -79,7 +77,6 @@ export type CardMaxAggregateOutputType = {
 export type CardCountAggregateOutputType = {
   id: number
   title: number
-  content: number
   createdById: number
   modifiedById: number
   boardId: number
@@ -114,7 +111,6 @@ export type CardSumAggregateInputType = {
 export type CardMinAggregateInputType = {
   id?: true
   title?: true
-  content?: true
   createdById?: true
   modifiedById?: true
   boardId?: true
@@ -131,7 +127,6 @@ export type CardMinAggregateInputType = {
 export type CardMaxAggregateInputType = {
   id?: true
   title?: true
-  content?: true
   createdById?: true
   modifiedById?: true
   boardId?: true
@@ -148,7 +143,6 @@ export type CardMaxAggregateInputType = {
 export type CardCountAggregateInputType = {
   id?: true
   title?: true
-  content?: true
   createdById?: true
   modifiedById?: true
   boardId?: true
@@ -252,7 +246,6 @@ export type CardGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type CardGroupByOutputType = {
   id: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -292,7 +285,6 @@ export type CardWhereInput = {
   NOT?: Prisma.CardWhereInput | Prisma.CardWhereInput[]
   id?: Prisma.IntFilter<"Card"> | number
   title?: Prisma.StringFilter<"Card"> | string
-  content?: Prisma.StringFilter<"Card"> | string
   createdById?: Prisma.IntFilter<"Card"> | number
   modifiedById?: Prisma.IntFilter<"Card"> | number
   boardId?: Prisma.IntFilter<"Card"> | number
@@ -304,6 +296,7 @@ export type CardWhereInput = {
   complete?: Prisma.BoolFilter<"Card"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Card"> | Date | string
   modifiedAt?: Prisma.DateTimeFilter<"Card"> | Date | string
+  content?: Prisma.ContentHistoryListRelationFilter
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   modifiedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignments?: Prisma.AssignmentListRelationFilter
@@ -318,7 +311,6 @@ export type CardWhereInput = {
 export type CardOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  content?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   modifiedById?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
@@ -330,6 +322,7 @@ export type CardOrderByWithRelationInput = {
   complete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   modifiedAt?: Prisma.SortOrder
+  content?: Prisma.ContentHistoryOrderByRelationAggregateInput
   createdBy?: Prisma.UserOrderByWithRelationInput
   modifiedBy?: Prisma.UserOrderByWithRelationInput
   assignments?: Prisma.AssignmentOrderByRelationAggregateInput
@@ -348,7 +341,6 @@ export type CardWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CardWhereInput[]
   NOT?: Prisma.CardWhereInput | Prisma.CardWhereInput[]
   title?: Prisma.StringFilter<"Card"> | string
-  content?: Prisma.StringFilter<"Card"> | string
   createdById?: Prisma.IntFilter<"Card"> | number
   modifiedById?: Prisma.IntFilter<"Card"> | number
   boardId?: Prisma.IntFilter<"Card"> | number
@@ -360,6 +352,7 @@ export type CardWhereUniqueInput = Prisma.AtLeast<{
   complete?: Prisma.BoolFilter<"Card"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Card"> | Date | string
   modifiedAt?: Prisma.DateTimeFilter<"Card"> | Date | string
+  content?: Prisma.ContentHistoryListRelationFilter
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   modifiedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignments?: Prisma.AssignmentListRelationFilter
@@ -374,7 +367,6 @@ export type CardWhereUniqueInput = Prisma.AtLeast<{
 export type CardOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  content?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   modifiedById?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
@@ -399,7 +391,6 @@ export type CardScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CardScalarWhereWithAggregatesInput | Prisma.CardScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Card"> | number
   title?: Prisma.StringWithAggregatesFilter<"Card"> | string
-  content?: Prisma.StringWithAggregatesFilter<"Card"> | string
   createdById?: Prisma.IntWithAggregatesFilter<"Card"> | number
   modifiedById?: Prisma.IntWithAggregatesFilter<"Card"> | number
   boardId?: Prisma.IntWithAggregatesFilter<"Card"> | number
@@ -415,7 +406,6 @@ export type CardScalarWhereWithAggregatesInput = {
 
 export type CardCreateInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -423,6 +413,7 @@ export type CardCreateInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -437,7 +428,6 @@ export type CardCreateInput = {
 export type CardUncheckedCreateInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -449,6 +439,7 @@ export type CardUncheckedCreateInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -458,7 +449,6 @@ export type CardUncheckedCreateInput = {
 
 export type CardUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -466,6 +456,7 @@ export type CardUpdateInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -480,7 +471,6 @@ export type CardUpdateInput = {
 export type CardUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -492,6 +482,7 @@ export type CardUncheckedUpdateInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -502,7 +493,6 @@ export type CardUncheckedUpdateInput = {
 export type CardCreateManyInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -518,7 +508,6 @@ export type CardCreateManyInput = {
 
 export type CardUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -531,7 +520,6 @@ export type CardUpdateManyMutationInput = {
 export type CardUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -568,7 +556,6 @@ export type CardTitleBoardIdCompoundUniqueInput = {
 export type CardCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  content?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   modifiedById?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
@@ -593,7 +580,6 @@ export type CardAvgOrderByAggregateInput = {
 export type CardMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  content?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   modifiedById?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
@@ -610,7 +596,6 @@ export type CardMaxOrderByAggregateInput = {
 export type CardMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  content?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   modifiedById?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
@@ -736,6 +721,20 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type CardCreateNestedOneWithoutContentInput = {
+  create?: Prisma.XOR<Prisma.CardCreateWithoutContentInput, Prisma.CardUncheckedCreateWithoutContentInput>
+  connectOrCreate?: Prisma.CardCreateOrConnectWithoutContentInput
+  connect?: Prisma.CardWhereUniqueInput
+}
+
+export type CardUpdateOneRequiredWithoutContentNestedInput = {
+  create?: Prisma.XOR<Prisma.CardCreateWithoutContentInput, Prisma.CardUncheckedCreateWithoutContentInput>
+  connectOrCreate?: Prisma.CardCreateOrConnectWithoutContentInput
+  upsert?: Prisma.CardUpsertWithoutContentInput
+  connect?: Prisma.CardWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CardUpdateToOneWithWhereWithoutContentInput, Prisma.CardUpdateWithoutContentInput>, Prisma.CardUncheckedUpdateWithoutContentInput>
 }
 
 export type CardCreateNestedOneWithoutTasksInput = {
@@ -904,7 +903,6 @@ export type CardUncheckedUpdateManyWithoutSubscribersNestedInput = {
 
 export type CardCreateWithoutBoardInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -912,6 +910,7 @@ export type CardCreateWithoutBoardInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -925,7 +924,6 @@ export type CardCreateWithoutBoardInput = {
 export type CardUncheckedCreateWithoutBoardInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   listId: number
@@ -936,6 +934,7 @@ export type CardUncheckedCreateWithoutBoardInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -975,7 +974,6 @@ export type CardScalarWhereInput = {
   NOT?: Prisma.CardScalarWhereInput | Prisma.CardScalarWhereInput[]
   id?: Prisma.IntFilter<"Card"> | number
   title?: Prisma.StringFilter<"Card"> | string
-  content?: Prisma.StringFilter<"Card"> | string
   createdById?: Prisma.IntFilter<"Card"> | number
   modifiedById?: Prisma.IntFilter<"Card"> | number
   boardId?: Prisma.IntFilter<"Card"> | number
@@ -991,7 +989,6 @@ export type CardScalarWhereInput = {
 
 export type CardCreateWithoutListInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -999,6 +996,7 @@ export type CardCreateWithoutListInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -1012,7 +1010,6 @@ export type CardCreateWithoutListInput = {
 export type CardUncheckedCreateWithoutListInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1023,6 +1020,7 @@ export type CardUncheckedCreateWithoutListInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -1058,7 +1056,6 @@ export type CardUpdateManyWithWhereWithoutListInput = {
 
 export type CardCreateWithoutAssignmentsInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1066,6 +1063,7 @@ export type CardCreateWithoutAssignmentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   subscribers?: Prisma.UserCreateNestedManyWithoutSubscribedCardsInput
@@ -1079,7 +1077,6 @@ export type CardCreateWithoutAssignmentsInput = {
 export type CardUncheckedCreateWithoutAssignmentsInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1091,6 +1088,7 @@ export type CardUncheckedCreateWithoutAssignmentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutCardInput
@@ -1115,7 +1113,6 @@ export type CardUpdateToOneWithWhereWithoutAssignmentsInput = {
 
 export type CardUpdateWithoutAssignmentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1123,6 +1120,7 @@ export type CardUpdateWithoutAssignmentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   subscribers?: Prisma.UserUpdateManyWithoutSubscribedCardsNestedInput
@@ -1136,7 +1134,6 @@ export type CardUpdateWithoutAssignmentsInput = {
 export type CardUncheckedUpdateWithoutAssignmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1148,15 +1145,15 @@ export type CardUncheckedUpdateWithoutAssignmentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutCardNestedInput
   comments?: Prisma.CardCommentUncheckedUpdateManyWithoutCardNestedInput
 }
 
-export type CardCreateWithoutTasksInput = {
+export type CardCreateWithoutContentInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1170,14 +1167,14 @@ export type CardCreateWithoutTasksInput = {
   subscribers?: Prisma.UserCreateNestedManyWithoutSubscribedCardsInput
   board: Prisma.BoardCreateNestedOneWithoutCardsInput
   list: Prisma.ListCreateNestedOneWithoutCardsInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCardInput
   attachments?: Prisma.AttachmentCreateNestedManyWithoutCardInput
   comments?: Prisma.CardCommentCreateNestedManyWithoutCardInput
 }
 
-export type CardUncheckedCreateWithoutTasksInput = {
+export type CardUncheckedCreateWithoutContentInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1189,6 +1186,105 @@ export type CardUncheckedCreateWithoutTasksInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
+  subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutCardInput
+  comments?: Prisma.CardCommentUncheckedCreateNestedManyWithoutCardInput
+}
+
+export type CardCreateOrConnectWithoutContentInput = {
+  where: Prisma.CardWhereUniqueInput
+  create: Prisma.XOR<Prisma.CardCreateWithoutContentInput, Prisma.CardUncheckedCreateWithoutContentInput>
+}
+
+export type CardUpsertWithoutContentInput = {
+  update: Prisma.XOR<Prisma.CardUpdateWithoutContentInput, Prisma.CardUncheckedUpdateWithoutContentInput>
+  create: Prisma.XOR<Prisma.CardCreateWithoutContentInput, Prisma.CardUncheckedCreateWithoutContentInput>
+  where?: Prisma.CardWhereInput
+}
+
+export type CardUpdateToOneWithWhereWithoutContentInput = {
+  where?: Prisma.CardWhereInput
+  data: Prisma.XOR<Prisma.CardUpdateWithoutContentInput, Prisma.CardUncheckedUpdateWithoutContentInput>
+}
+
+export type CardUpdateWithoutContentInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
+  modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
+  assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
+  subscribers?: Prisma.UserUpdateManyWithoutSubscribedCardsNestedInput
+  board?: Prisma.BoardUpdateOneRequiredWithoutCardsNestedInput
+  list?: Prisma.ListUpdateOneRequiredWithoutCardsNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCardNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutCardNestedInput
+  comments?: Prisma.CardCommentUpdateManyWithoutCardNestedInput
+}
+
+export type CardUncheckedUpdateWithoutContentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.IntFieldUpdateOperationsInput | number
+  modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
+  boardId?: Prisma.IntFieldUpdateOperationsInput | number
+  listId?: Prisma.IntFieldUpdateOperationsInput | number
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
+  subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutCardNestedInput
+  comments?: Prisma.CardCommentUncheckedUpdateManyWithoutCardNestedInput
+}
+
+export type CardCreateWithoutTasksInput = {
+  title: string
+  url?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  dueDate?: Date | string | null
+  complete?: boolean
+  createdAt?: Date | string
+  modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
+  createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
+  modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
+  assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
+  subscribers?: Prisma.UserCreateNestedManyWithoutSubscribedCardsInput
+  board: Prisma.BoardCreateNestedOneWithoutCardsInput
+  list: Prisma.ListCreateNestedOneWithoutCardsInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutCardInput
+  comments?: Prisma.CardCommentCreateNestedManyWithoutCardInput
+}
+
+export type CardUncheckedCreateWithoutTasksInput = {
+  id?: number
+  title: string
+  createdById: number
+  modifiedById: number
+  boardId: number
+  listId: number
+  url?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  dueDate?: Date | string | null
+  complete?: boolean
+  createdAt?: Date | string
+  modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutCardInput
@@ -1213,7 +1309,6 @@ export type CardUpdateToOneWithWhereWithoutTasksInput = {
 
 export type CardUpdateWithoutTasksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1221,6 +1316,7 @@ export type CardUpdateWithoutTasksInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1234,7 +1330,6 @@ export type CardUpdateWithoutTasksInput = {
 export type CardUncheckedUpdateWithoutTasksInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1246,6 +1341,7 @@ export type CardUncheckedUpdateWithoutTasksInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutCardNestedInput
@@ -1254,7 +1350,6 @@ export type CardUncheckedUpdateWithoutTasksInput = {
 
 export type CardCreateWithoutAttachmentsInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1262,6 +1357,7 @@ export type CardCreateWithoutAttachmentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -1275,7 +1371,6 @@ export type CardCreateWithoutAttachmentsInput = {
 export type CardUncheckedCreateWithoutAttachmentsInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1287,6 +1382,7 @@ export type CardUncheckedCreateWithoutAttachmentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -1311,7 +1407,6 @@ export type CardUpdateToOneWithWhereWithoutAttachmentsInput = {
 
 export type CardUpdateWithoutAttachmentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1319,6 +1414,7 @@ export type CardUpdateWithoutAttachmentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1332,7 +1428,6 @@ export type CardUpdateWithoutAttachmentsInput = {
 export type CardUncheckedUpdateWithoutAttachmentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1344,6 +1439,7 @@ export type CardUncheckedUpdateWithoutAttachmentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1352,7 +1448,6 @@ export type CardUncheckedUpdateWithoutAttachmentsInput = {
 
 export type CardCreateWithoutCommentsInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1360,6 +1455,7 @@ export type CardCreateWithoutCommentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -1373,7 +1469,6 @@ export type CardCreateWithoutCommentsInput = {
 export type CardUncheckedCreateWithoutCommentsInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1385,6 +1480,7 @@ export type CardUncheckedCreateWithoutCommentsInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -1409,7 +1505,6 @@ export type CardUpdateToOneWithWhereWithoutCommentsInput = {
 
 export type CardUpdateWithoutCommentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1417,6 +1512,7 @@ export type CardUpdateWithoutCommentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1430,7 +1526,6 @@ export type CardUpdateWithoutCommentsInput = {
 export type CardUncheckedUpdateWithoutCommentsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1442,6 +1537,7 @@ export type CardUncheckedUpdateWithoutCommentsInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1450,7 +1546,6 @@ export type CardUncheckedUpdateWithoutCommentsInput = {
 
 export type CardCreateWithoutCreatedByInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1458,6 +1553,7 @@ export type CardCreateWithoutCreatedByInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserCreateNestedManyWithoutSubscribedCardsInput
@@ -1471,7 +1567,6 @@ export type CardCreateWithoutCreatedByInput = {
 export type CardUncheckedCreateWithoutCreatedByInput = {
   id?: number
   title: string
-  content: string
   modifiedById: number
   boardId: number
   listId: number
@@ -1482,6 +1577,7 @@ export type CardUncheckedCreateWithoutCreatedByInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -1501,7 +1597,6 @@ export type CardCreateManyCreatedByInputEnvelope = {
 
 export type CardCreateWithoutModifiedByInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1509,6 +1604,7 @@ export type CardCreateWithoutModifiedByInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserCreateNestedManyWithoutSubscribedCardsInput
@@ -1522,7 +1618,6 @@ export type CardCreateWithoutModifiedByInput = {
 export type CardUncheckedCreateWithoutModifiedByInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   boardId: number
   listId: number
@@ -1533,6 +1628,7 @@ export type CardUncheckedCreateWithoutModifiedByInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   subscribers?: Prisma.UserUncheckedCreateNestedManyWithoutSubscribedCardsInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
@@ -1552,7 +1648,6 @@ export type CardCreateManyModifiedByInputEnvelope = {
 
 export type CardCreateWithoutSubscribersInput = {
   title: string
-  content: string
   url?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
@@ -1560,6 +1655,7 @@ export type CardCreateWithoutSubscribersInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryCreateNestedManyWithoutCardInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCardsInput
   modifiedBy: Prisma.UserCreateNestedOneWithoutModifiedCardsInput
   assignments?: Prisma.AssignmentCreateNestedManyWithoutCardInput
@@ -1573,7 +1669,6 @@ export type CardCreateWithoutSubscribersInput = {
 export type CardUncheckedCreateWithoutSubscribersInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1585,6 +1680,7 @@ export type CardUncheckedCreateWithoutSubscribersInput = {
   complete?: boolean
   createdAt?: Date | string
   modifiedAt?: Date | string
+  content?: Prisma.ContentHistoryUncheckedCreateNestedManyWithoutCardInput
   assignments?: Prisma.AssignmentUncheckedCreateNestedManyWithoutCardInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCardInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutCardInput
@@ -1647,7 +1743,6 @@ export type CardUpdateManyWithWhereWithoutSubscribersInput = {
 export type CardCreateManyBoardInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   listId: number
@@ -1662,7 +1757,6 @@ export type CardCreateManyBoardInput = {
 
 export type CardUpdateWithoutBoardInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1670,6 +1764,7 @@ export type CardUpdateWithoutBoardInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1683,7 +1778,6 @@ export type CardUpdateWithoutBoardInput = {
 export type CardUncheckedUpdateWithoutBoardInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1694,6 +1788,7 @@ export type CardUncheckedUpdateWithoutBoardInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1704,7 +1799,6 @@ export type CardUncheckedUpdateWithoutBoardInput = {
 export type CardUncheckedUpdateManyWithoutBoardInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1720,7 +1814,6 @@ export type CardUncheckedUpdateManyWithoutBoardInput = {
 export type CardCreateManyListInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   modifiedById: number
   boardId: number
@@ -1735,7 +1828,6 @@ export type CardCreateManyListInput = {
 
 export type CardUpdateWithoutListInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1743,6 +1835,7 @@ export type CardUpdateWithoutListInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1756,7 +1849,6 @@ export type CardUpdateWithoutListInput = {
 export type CardUncheckedUpdateWithoutListInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1767,6 +1859,7 @@ export type CardUncheckedUpdateWithoutListInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1777,7 +1870,6 @@ export type CardUncheckedUpdateWithoutListInput = {
 export type CardUncheckedUpdateManyWithoutListInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1793,7 +1885,6 @@ export type CardUncheckedUpdateManyWithoutListInput = {
 export type CardCreateManyCreatedByInput = {
   id?: number
   title: string
-  content: string
   modifiedById: number
   boardId: number
   listId: number
@@ -1809,7 +1900,6 @@ export type CardCreateManyCreatedByInput = {
 export type CardCreateManyModifiedByInput = {
   id?: number
   title: string
-  content: string
   createdById: number
   boardId: number
   listId: number
@@ -1824,7 +1914,6 @@ export type CardCreateManyModifiedByInput = {
 
 export type CardUpdateWithoutCreatedByInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1832,6 +1921,7 @@ export type CardUpdateWithoutCreatedByInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUpdateManyWithoutSubscribedCardsNestedInput
@@ -1845,7 +1935,6 @@ export type CardUpdateWithoutCreatedByInput = {
 export type CardUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1856,6 +1945,7 @@ export type CardUncheckedUpdateWithoutCreatedByInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1866,7 +1956,6 @@ export type CardUncheckedUpdateWithoutCreatedByInput = {
 export type CardUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1881,7 +1970,6 @@ export type CardUncheckedUpdateManyWithoutCreatedByInput = {
 
 export type CardUpdateWithoutModifiedByInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1889,6 +1977,7 @@ export type CardUpdateWithoutModifiedByInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUpdateManyWithoutSubscribedCardsNestedInput
@@ -1902,7 +1991,6 @@ export type CardUpdateWithoutModifiedByInput = {
 export type CardUncheckedUpdateWithoutModifiedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1913,6 +2001,7 @@ export type CardUncheckedUpdateWithoutModifiedByInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   subscribers?: Prisma.UserUncheckedUpdateManyWithoutSubscribedCardsNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
@@ -1923,7 +2012,6 @@ export type CardUncheckedUpdateWithoutModifiedByInput = {
 export type CardUncheckedUpdateManyWithoutModifiedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
   listId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1938,7 +2026,6 @@ export type CardUncheckedUpdateManyWithoutModifiedByInput = {
 
 export type CardUpdateWithoutSubscribersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1946,6 +2033,7 @@ export type CardUpdateWithoutSubscribersInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUpdateManyWithoutCardNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCardsNestedInput
   modifiedBy?: Prisma.UserUpdateOneRequiredWithoutModifiedCardsNestedInput
   assignments?: Prisma.AssignmentUpdateManyWithoutCardNestedInput
@@ -1959,7 +2047,6 @@ export type CardUpdateWithoutSubscribersInput = {
 export type CardUncheckedUpdateWithoutSubscribersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1971,6 +2058,7 @@ export type CardUncheckedUpdateWithoutSubscribersInput = {
   complete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   modifiedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  content?: Prisma.ContentHistoryUncheckedUpdateManyWithoutCardNestedInput
   assignments?: Prisma.AssignmentUncheckedUpdateManyWithoutCardNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCardNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutCardNestedInput
@@ -1980,7 +2068,6 @@ export type CardUncheckedUpdateWithoutSubscribersInput = {
 export type CardUncheckedUpdateManyWithoutSubscribersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.IntFieldUpdateOperationsInput | number
   modifiedById?: Prisma.IntFieldUpdateOperationsInput | number
   boardId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2000,6 +2087,7 @@ export type CardUncheckedUpdateManyWithoutSubscribersInput = {
  */
 
 export type CardCountOutputType = {
+  content: number
   assignments: number
   subscribers: number
   tasks: number
@@ -2008,6 +2096,7 @@ export type CardCountOutputType = {
 }
 
 export type CardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  content?: boolean | CardCountOutputTypeCountContentArgs
   assignments?: boolean | CardCountOutputTypeCountAssignmentsArgs
   subscribers?: boolean | CardCountOutputTypeCountSubscribersArgs
   tasks?: boolean | CardCountOutputTypeCountTasksArgs
@@ -2023,6 +2112,13 @@ export type CardCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the CardCountOutputType
    */
   select?: Prisma.CardCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CardCountOutputType without action
+ */
+export type CardCountOutputTypeCountContentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentHistoryWhereInput
 }
 
 /**
@@ -2064,7 +2160,6 @@ export type CardCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.E
 export type CardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
-  content?: boolean
   createdById?: boolean
   modifiedById?: boolean
   boardId?: boolean
@@ -2076,6 +2171,7 @@ export type CardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   complete?: boolean
   createdAt?: boolean
   modifiedAt?: boolean
+  content?: boolean | Prisma.Card$contentArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   modifiedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignments?: boolean | Prisma.Card$assignmentsArgs<ExtArgs>
@@ -2091,7 +2187,6 @@ export type CardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type CardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
-  content?: boolean
   createdById?: boolean
   modifiedById?: boolean
   boardId?: boolean
@@ -2112,7 +2207,6 @@ export type CardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type CardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
-  content?: boolean
   createdById?: boolean
   modifiedById?: boolean
   boardId?: boolean
@@ -2133,7 +2227,6 @@ export type CardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type CardSelectScalar = {
   id?: boolean
   title?: boolean
-  content?: boolean
   createdById?: boolean
   modifiedById?: boolean
   boardId?: boolean
@@ -2147,8 +2240,9 @@ export type CardSelectScalar = {
   modifiedAt?: boolean
 }
 
-export type CardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "createdById" | "modifiedById" | "boardId" | "listId" | "url" | "startDate" | "endDate" | "dueDate" | "complete" | "createdAt" | "modifiedAt", ExtArgs["result"]["card"]>
+export type CardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "createdById" | "modifiedById" | "boardId" | "listId" | "url" | "startDate" | "endDate" | "dueDate" | "complete" | "createdAt" | "modifiedAt", ExtArgs["result"]["card"]>
 export type CardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  content?: boolean | Prisma.Card$contentArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   modifiedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignments?: boolean | Prisma.Card$assignmentsArgs<ExtArgs>
@@ -2176,6 +2270,7 @@ export type CardIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $CardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Card"
   objects: {
+    content: Prisma.$ContentHistoryPayload<ExtArgs>[]
     createdBy: Prisma.$UserPayload<ExtArgs>
     modifiedBy: Prisma.$UserPayload<ExtArgs>
     assignments: Prisma.$AssignmentPayload<ExtArgs>[]
@@ -2189,7 +2284,6 @@ export type $CardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     title: string
-    content: string
     createdById: number
     modifiedById: number
     boardId: number
@@ -2595,6 +2689,7 @@ readonly fields: CardFieldRefs;
  */
 export interface Prisma__CardClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  content<T extends Prisma.Card$contentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Card$contentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   modifiedBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assignments<T extends Prisma.Card$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Card$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2635,7 +2730,6 @@ export interface Prisma__CardClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface CardFieldRefs {
   readonly id: Prisma.FieldRef<"Card", 'Int'>
   readonly title: Prisma.FieldRef<"Card", 'String'>
-  readonly content: Prisma.FieldRef<"Card", 'String'>
   readonly createdById: Prisma.FieldRef<"Card", 'Int'>
   readonly modifiedById: Prisma.FieldRef<"Card", 'Int'>
   readonly boardId: Prisma.FieldRef<"Card", 'Int'>
@@ -3054,6 +3148,30 @@ export type CardDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Cards to delete.
    */
   limit?: number
+}
+
+/**
+ * Card.content
+ */
+export type Card$contentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentHistory
+   */
+  select?: Prisma.ContentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentHistory
+   */
+  omit?: Prisma.ContentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentHistoryInclude<ExtArgs> | null
+  where?: Prisma.ContentHistoryWhereInput
+  orderBy?: Prisma.ContentHistoryOrderByWithRelationInput | Prisma.ContentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.ContentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentHistoryScalarFieldEnum | Prisma.ContentHistoryScalarFieldEnum[]
 }
 
 /**

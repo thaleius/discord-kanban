@@ -2,10 +2,18 @@ import { User } from 'discord.js';
 import 'dotenv/config';
 import { Prisma } from '../generated/prisma/client';
 import { prisma } from "../lib/prisma";
+import { sortCardContentHistory } from './utils';
+
+export const ContentInclude = {
+  createdBy: true
+};
 
 export const CardInclude = {
   board: true,
   list: true,
+  content: {
+    include: ContentInclude
+  },
   assignments: {
     include: {
       assignee: true,
@@ -64,6 +72,10 @@ export type ListWithDetails = Prisma.ListGetPayload<{
 
 export type CardWithDetails = Prisma.CardGetPayload<{
   include: typeof CardInclude
+}>
+
+export type ContentWithDetails = Prisma.ContentHistoryGetPayload<{
+  include: typeof ContentInclude
 }>
 
 export const getBoards = async () => {
@@ -284,7 +296,21 @@ export const newCard = async (userInfo: User, boardName: string, listName: strin
     const txCard = await tx.card.create({
       data: {
         title: cardTitle,
-        content: cardContent || '',
+        content: {
+          create: {
+            value: cardContent || '',
+            createdBy: {
+              connectOrCreate: {
+                where: { discordId: userInfo.id },
+                create: {
+                  discordId: userInfo.id,
+                  username: userInfo.username,
+                  displayName: userInfo.displayName
+                }
+              }
+            }
+          }
+        },
         url: cardUrl,
         board: {
           connect: {
@@ -380,8 +406,6 @@ export const editList = async (userInfo: User, boardName: string, listName: stri
 }
 
 export const editCard = async (userInfo: User, boardName: string, cardId: number, property: "title" | "content" | "url", newValue: string) => {
-  const data: Record<string, string> = {};
-  data[property] = newValue;
 
   const board = await getBoard(boardName);
   if (!board) {
@@ -393,21 +417,42 @@ export const editCard = async (userInfo: User, boardName: string, cardId: number
   const [user, card] = await prisma.$transaction(async (tx) => {
     const txUser = await tx.user.upsert(upsertUser(userInfo));
 
-    const txCard = await tx.card.update({
+    const query: Prisma.CardUpdateArgs = {
       where: {
         id: cardId
       },
       data: {
-        ...data,
         modifiedBy: { connect: { id: txUser.id } }
       },
       include: CardInclude
-    });
+    }
+
+    if (property === 'content') {
+      query.data.content = {
+        create: {
+          value: newValue || '',
+          createdBy: {
+            connectOrCreate: {
+              where: { discordId: userInfo.id },
+              create: {
+                discordId: userInfo.id,
+                username: userInfo.username,
+                displayName: userInfo.displayName
+              }
+            }
+          }
+        }
+      }
+    } else {
+      query.data[property] = newValue;
+    }
+
+    const txCard = await tx.card.update(query) as CardWithDetails;
     return [txUser, txCard];
   });
 
   return {
-    property, value: card[property], card
+    property, value: property === 'content' ? sortCardContentHistory(card.content) : card[property], card
   }
 }
 
@@ -474,6 +519,43 @@ export const cardAssign = async (assigner: User, cardId: number, assignee: User)
   };
 }
 
+export const cardUnassign = async (cardId: number, assignee: User) => {
+  const user = await prisma.user.findUnique({
+    where: { discordId: assignee.id },
+    select: { id: true }
+  });
+  if (!user) return { error: `User <@${assignee.id}> does not exist in the database.` }
+
+  const targetAssignment = await prisma.assignment.findUnique({
+    where: {
+      assigneeId_cardId: {
+        cardId: cardId,
+        assigneeId: user.id
+      }
+    },
+    select: {
+      id: true
+    }
+  });
+
+  if (!targetAssignment) return { error: `<@${assignee.id}> is not assigned to this Card.` };
+
+  await prisma.assignment.delete({
+    where: { id: targetAssignment.id }
+  });
+
+  const card = await prisma.card.findUnique({
+    where: { id: cardId },
+    include: CardInclude
+  });
+
+  if (!card) return { error: `Card with ID \`${cardId}\` does not exist.` }
+
+  return {
+    card: card
+  };
+}
+
 export const moveCard = async (userInfo: User, boardName: string, cardId: number, targetListName: string) => {
   await prisma.user.upsert(upsertUser(userInfo));
 
@@ -529,6 +611,18 @@ export const moveCard = async (userInfo: User, boardName: string, cardId: number
 
   return {
     previousList,
+    card
+  }
+}
+
+export const getCardHistory = async (cardId: number) => {
+  const card = await prisma.card.findUnique({
+    where: { id: cardId },
+    include: CardInclude
+  });
+  if (!card) return { error: `Card with the ID \`${cardId}\` does not exist.` }
+
+  return {
     card
   }
 }

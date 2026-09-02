@@ -401,6 +401,7 @@ export const ModelName = {
   List: 'List',
   Assignment: 'Assignment',
   Card: 'Card',
+  ContentHistory: 'ContentHistory',
   Task: 'Task',
   Attachment: 'Attachment',
   CardComment: 'CardComment',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "board" | "list" | "assignment" | "card" | "task" | "attachment" | "cardComment" | "taskComment" | "user"
+    modelProps: "board" | "list" | "assignment" | "card" | "contentHistory" | "task" | "attachment" | "cardComment" | "taskComment" | "user"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -718,6 +719,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CardCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CardCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContentHistory: {
+      payload: Prisma.$ContentHistoryPayload<ExtArgs>
+      fields: Prisma.ContentHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContentHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContentHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.ContentHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContentHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.ContentHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.ContentHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.ContentHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContentHistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.ContentHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        update: {
+          args: Prisma.ContentHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContentHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContentHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContentHistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContentHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.ContentHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContentHistory>
+        }
+        groupBy: {
+          args: Prisma.ContentHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContentHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentHistoryCountAggregateOutputType> | number
         }
       }
     }
@@ -1179,7 +1254,6 @@ export type AssignmentScalarFieldEnum = (typeof AssignmentScalarFieldEnum)[keyof
 export const CardScalarFieldEnum = {
   id: 'id',
   title: 'title',
-  content: 'content',
   createdById: 'createdById',
   modifiedById: 'modifiedById',
   boardId: 'boardId',
@@ -1194,6 +1268,17 @@ export const CardScalarFieldEnum = {
 } as const
 
 export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
+
+
+export const ContentHistoryScalarFieldEnum = {
+  id: 'id',
+  value: 'value',
+  cardId: 'cardId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ContentHistoryScalarFieldEnum = (typeof ContentHistoryScalarFieldEnum)[keyof typeof ContentHistoryScalarFieldEnum]
 
 
 export const TaskScalarFieldEnum = {
@@ -1513,6 +1598,7 @@ export type GlobalOmitConfig = {
   list?: Prisma.ListOmit
   assignment?: Prisma.AssignmentOmit
   card?: Prisma.CardOmit
+  contentHistory?: Prisma.ContentHistoryOmit
   task?: Prisma.TaskOmit
   attachment?: Prisma.AttachmentOmit
   cardComment?: Prisma.CardCommentOmit

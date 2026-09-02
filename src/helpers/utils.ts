@@ -1,5 +1,5 @@
 import { APIEmbedField, ApplicationIntegrationType, EmbedBuilder, InteractionContextType, SlashCommandBuilder as SCB } from "discord.js";
-import { BoardWithList, CardWithDetails, ListWithDetails } from "./db";
+import { BoardWithList, CardWithDetails, ContentWithDetails, ListWithDetails } from "./db";
 
 export const Embed = (title: string, subtitle: string | null = null) => {
   return new EmbedBuilder()
@@ -13,7 +13,7 @@ export const Embed = (title: string, subtitle: string | null = null) => {
 }
 
 const formatAssignees = (card: CardWithDetails) => {
-  return card.assignments.map(assignment => `<@${assignment.assignee.discordId}>`);
+  return '👤 ' + card.assignments.map(assignment => `<@${assignment.assignee.discordId}>`).join(', ');
 }
 
 export const valueBuilder = (list: ListWithDetails) => {
@@ -22,8 +22,7 @@ export const valueBuilder = (list: ListWithDetails) => {
     let value = `[${card.id}] ` + (url ? `[${card.title}](${url})` : card.title);
     if (card.assignments.length > 0) {
       // value += "\n_Assignees:_";
-      const assignees = formatAssignees(card);
-      value += `\n> ${assignees.join(', ')}`;
+      value += '\n' + formatAssignees(card);
     }
     return value;
   }).join('\n');
@@ -39,6 +38,8 @@ export const SlashCommandBuilder = () => new SCB()
     ApplicationIntegrationType.GuildInstall,
     ApplicationIntegrationType.UserInstall
   )
+
+export const sortCardContentHistory = (content: ContentWithDetails[]) => content.toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
 export const createBoardEmbed = (board: BoardWithList) => {
   const fields = board.lists.map(list => {
@@ -62,16 +63,26 @@ export const createListEmbed = (list: ListWithDetails) => {
   return embed;
 }
 
-export const createCardEmbed = (card: CardWithDetails) => {
-  const embed = Embed(card.title, card.board.name + ' | ' + card.list.name)
+export const createCardEmbed = (card: CardWithDetails, history: boolean = false) => {
+  const embed = Embed(card.title + (history ? ' [History]' : ''), card.board.name + ' | ' + card.list.name)
   if (card.url) {
     embed.setURL(card.url);
   }
-  const content = [card.content];
-  if (card.assignments.length > 0) {
-    content.push(`> ${formatAssignees(card).join(', ')}`);
+  const content = [];
+  
+  if (history) {
+    content.push(sortCardContentHistory(card.content).map(c => `<t:${Math.floor(c.createdAt.getTime()/1000)}:f> by <@${c.createdBy.discordId}>\n> ${c.value || '`EMPTY`'}`).join('\n\n'))
+  } else {
+    const latestContent = sortCardContentHistory(card.content)[0].value;
+    if (latestContent !== '') {
+      content.push(latestContent);
+    }
   }
-  if (content) {
+
+  if (card.assignments.length > 0) {
+    content.push(formatAssignees(card));
+  }
+  if (content.length > 0) {
     embed.setDescription(content.join('\n\n'));
   }
   return embed;

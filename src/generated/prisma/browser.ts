@@ -38,6 +38,11 @@ export type Assignment = Prisma.AssignmentModel
  */
 export type Card = Prisma.CardModel
 /**
+ * Model ContentHistory
+ * 
+ */
+export type ContentHistory = Prisma.ContentHistoryModel
+/**
  * Model Task
  * 
  */
