@@ -1,14 +1,15 @@
 import { ActionRowBuilder, APIEmbedField, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, EmbedBuilder, InteractionContextType, InteractionEditReplyOptions, InteractionReplyOptions, SlashCommandBuilder as SCB, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, User } from "discord.js";
+import { EMBED } from "../../config.json";
 import { Assignment, Board, Card, ContentHistory, List, Prisma } from "../generated/prisma/client";
 
 export const Embed = (title: string, subtitle: string | null = null) => {
   return new EmbedBuilder()
-    .setColor(0x7f0100)
+    .setColor(`#${EMBED.COLOR.replaceAll('#', '')}`)
     .setTitle(title)
     .setFooter(subtitle ? { text: subtitle } : null)
     .setAuthor({
-      name: "NIRU",
-      iconURL: "https://tr.rbxcdn.com/180DAY-756b15ab67c3502eff74fb2c23ebcba6/150/150/Image/Webp/noFilter"
+      name: EMBED.NAME,
+      iconURL: EMBED.ICON
     })
 }
 

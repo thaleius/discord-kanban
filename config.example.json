@@ -1,4 +1,9 @@
 {
+  "EMBED": {
+    "NAME": "",
+    "ICON": "",
+    "COLOR": ""
+  },
   "DISCORD": {
     "CLIENT_ID": "",
     "BOT_TOKEN": "",
