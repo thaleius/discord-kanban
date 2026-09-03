@@ -425,7 +425,7 @@ export const newCard = async (userInfo: User, boardId: number, listId: number, c
   };
 }
 
-export const editBoard = async (userInfo: User, boardName: string, property: "name" | "description", newValue: string) => {
+export const editBoard = async (userInfo: User, boardId: number, property: "name" | "description", newValue: string) => {
   const data: Record<string, string> = {};
   data[property] = newValue;
 
@@ -434,7 +434,7 @@ export const editBoard = async (userInfo: User, boardName: string, property: "na
 
     const txBoard = await tx.board.update({
       where: {
-        name: boardName
+        id: boardId
       },
       data: {
         ...data,

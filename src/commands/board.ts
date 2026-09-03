@@ -141,8 +141,8 @@ export default createCommand({
         return;
       }
 
-      const boardName = interaction.options.getString('board');
-      if (!boardName) {
+      const boardId = interaction.options.getInteger('board');
+      if (!boardId) {
         await interaction.reply({
           content: 'You must specify a Board to edit.',
           flags: MessageFlags.Ephemeral
@@ -175,11 +175,11 @@ export default createCommand({
         return;
       }
 
-      const result = await editBoard(interaction.user, boardName, property, newValue);
+      const result = await editBoard(interaction.user, boardId, property, newValue);
 
       const message = result.success
-        ? `The Board _${boardName}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`
-        : `An error occured while editing the Board _${boardName}_.`;
+        ? `The Board _${boardId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`
+        : `An error occured while editing the Board _${boardId}_.`;
 
       await interaction.reply(createBoardReply(result.board, message));
     }
