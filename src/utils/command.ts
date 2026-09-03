@@ -1,11 +1,9 @@
 import {
   AutocompleteInteraction,
-  ButtonInteraction,
   ChatInputCommandInteraction,
   ContextMenuCommandBuilder,
   SlashCommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-  StringSelectMenuInteraction
+  SlashCommandSubcommandsOnlyBuilder
 } from "discord.js";
 
 export interface CommandConfig {

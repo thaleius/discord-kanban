@@ -298,6 +298,13 @@ async function main() {
           return;
         }
 
+        if (board.cards.length === 0) {
+          await interaction.update({
+            content: 'Board does not have any cards.'
+          });
+          return;
+        }
+
         const modal = new ModalBuilder()
           .setCustomId(interaction.customId)
           .setTitle('Assign a User to a Card')
