@@ -295,7 +295,7 @@ export default createCommand({
 
       if (!result.boardExists) {
         await interaction.reply({
-          content: `A Board with the name _${boardName}_ does not exist.`,
+          content: `A Board with the name \`${boardName}\` does not exist.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -303,7 +303,7 @@ export default createCommand({
 
       if (result.cardExists) {
         await interaction.reply({
-          content: `A Card with the name _${cardTitle}_ already exists on the Board _${boardName}_.`,
+          content: `A Card with the name \`${cardTitle}\` already exists on the Board \`${boardName}\`.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -311,7 +311,7 @@ export default createCommand({
 
       if (!result.listExists) {
         await interaction.reply({
-          content: `A List with the name _${listName}_ does not exist on the Board _${boardName}_.`,
+          content: `A List with the name \`${listName}\` does not exist on the Board \`${boardName}\`.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -319,11 +319,11 @@ export default createCommand({
 
       if (!result.card) {
         await interaction.reply({
-          content: `An error occured while creating the Card _${cardTitle}_.`,
+          content: `An error occured while creating the Card \`${cardTitle}\`.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply(createCardReply(result.card, `The Card _${result.card!.title}_ has been created successfully in the List _${listName}_.`));
+        await interaction.reply(createCardReply(result.card, `The Card \`${result.card!.title}\` has been created successfully in the List \`${listName}\`.`));
       }
     } else if (subcommand === 'edit') {
       const cardId = interaction.options.getInteger('card');
@@ -369,7 +369,7 @@ export default createCommand({
       }
       if (property !== "title" && property !== "content" && property !== "url") {
         await interaction.reply({
-          content: `_${property}_ is not a valid property.`,
+          content: `\`${property}\` is not a valid property.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -392,7 +392,7 @@ export default createCommand({
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply(createCardReply(result.card, `The Card \`${cardId}\` has been edited successfully. Its new _${result.property}_ is _${result.value}_.`));
+        await interaction.reply(createCardReply(result.card, `The Card \`${cardId}\` has been edited. Its new \`${result.property}\` is \`${result.value}\`.`));
       }
     } else if (subcommand === 'assign') {
       const cardId = interaction.options.getInteger('card');
@@ -480,7 +480,7 @@ export default createCommand({
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply(createCardReply(result.card, `The Card _${result.card.title}_ has been successfully moved from _${result.previousList}_ to _${result.card.list.name}.`));
+        await interaction.reply(createCardReply(result.card, `The Card \`${result.card.title}\` has been successfully moved from \`${result.previousList}\` to _${result.card.list.name}.`));
       }
     } else if (subcommand === 'history') {
       const cardId = interaction.options.getInteger('card');

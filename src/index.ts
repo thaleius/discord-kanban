@@ -137,7 +137,7 @@ async function main() {
           .setRequired(true);
 
         const inputLabel = new LabelBuilder()
-          .setLabel('New ' + (property === 'url' ? 'URL' : property) + ':')
+          .setLabel('Edit ' + (property === 'url' ? 'URL' : property) + ':')
           .setTextInputComponent(textInput)
 
         modal.addLabelComponents(inputLabel);

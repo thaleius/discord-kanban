@@ -280,7 +280,7 @@ export const newList = async (userInfo: User, boardId: number, listName: string)
   });
   if (existingList) {
     return {
-      error: `A List with the name _${listName}_ already exists in the Board _${existingList.board.name}_.`,
+      error: `A List with the name \`${listName}\` already exists in the Board \`${existingList.board.name}\`.`,
       list: existingList
     }; 
   }

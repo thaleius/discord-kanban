@@ -126,9 +126,9 @@ export default createCommand({
 
       let message = '';
       if (result.boardExists) {
-        message = `A Board with the name _${boardName}_ already exists.`;
+        message = `A Board with the name \`${boardName}\` already exists.`;
       } else {
-        message = `The Board _${result.board.name}_ has been created successfully.`;
+        message = `The Board \`${result.board.name}\` has been created.`;
       }
 
       await interaction.reply(createBoardReply(result.board, message));
@@ -160,7 +160,7 @@ export default createCommand({
       }
       if (property !== "name" && property !== "description") {
         await interaction.reply({
-          content: `_${property}_ is not a valid property.`,
+          content: `\`${property}\` is not a valid property.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -178,8 +178,8 @@ export default createCommand({
       const result = await editBoard(interaction.user, boardId, property, newValue);
 
       const message = result.success
-        ? `The Board _${boardId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`
-        : `An error occured while editing the Board _${boardId}_.`;
+        ? `The Board \`${boardId}\` has been edited. Its new \`${result.property}\` is \`${result.value}\`.`
+        : `An error occured while editing the Board \`${boardId}\`.`;
 
       await interaction.reply(createBoardReply(result.board, message));
     }

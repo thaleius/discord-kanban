@@ -181,7 +181,7 @@ export default createCommand({
         return;
       }
 
-      await interaction.reply(createListReply(result.list, `The List _${result.list.name}_ has been created successfully on the Board _${boardId}_.`));
+      await interaction.reply(createListReply(result.list, `The List \`${result.list.name}\` has been created on the Board \`${boardId}\`.`));
     } else if (subcommand === 'edit') {
       if (!DISCORD.ADMIN_IDs.includes(interaction.user.id)) {
         await interaction.reply({
@@ -219,7 +219,7 @@ export default createCommand({
       }
       if (property !== "name" && property !== "description") {
         await interaction.reply({
-          content: `_${property}_ is not a valid property.`,
+          content: `\`${property}\` is not a valid property.`,
           flags: MessageFlags.Ephemeral
         });
         return;
@@ -238,11 +238,11 @@ export default createCommand({
 
       if (!result.list) {
         await interaction.reply({
-          content: `An error occured while editing the List _${listId}_.`,
+          content: `An error occured while editing the List \`${listId}\`.`,
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply(createListReply(result.list, `The List _${listId}_ has been edited successfully. Its new _${result.property}_ is _${result.value}_.`));
+        await interaction.reply(createListReply(result.list, `The List \`${listId}\` has been edited. Its new \`${result.property}\` is \`${result.value}\`.`));
       }
       
     }

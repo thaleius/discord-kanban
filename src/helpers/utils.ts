@@ -199,7 +199,7 @@ export const createCardEmbed = (card: Card & Prisma.CardGetPayload<{
   const content = [];
   
   if (history) {
-    content.push(sortCardContentHistory(card.content).map(c => `<t:${Math.floor(c.createdAt.getTime()/1000)}:f> by <@${c.createdBy.discordId}>\n> ${c.value || '`EMPTY`'}`).join('\n\n'))
+    content.push(sortCardContentHistory(card.content).map(c => `<t:${Math.floor(c.createdAt.getTime()/1000)}:f> by <@${c.createdBy.discordId}>\n${c.value || '`EMPTY`'}`).join('\n\n'))
   } else {
     const latestContent = sortCardContentHistory(card.content)[0].value;
     if (latestContent !== '') {
