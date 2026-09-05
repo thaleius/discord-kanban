@@ -1,0 +1,33 @@
+services: 
+  postgres_db: 
+    image: postgres:latest
+    hostname: postgres_db
+    container_name: postgres_db
+    restart: always
+    environment: 
+      POSTGRES_DB: organizer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks: 
+      - organizer-network
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"] 
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+  server: 
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    depends_on: 
+      postgres_db: 
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres_db:5432/organizer?sslmode=disable&connection_limit=10&connect_timeout=0&max_idle_connection_lifetime=0&pool_timeout=0&socket_timeout=0
+    networks: 
+      - organizer-network
+networks: 
+  organizer-network: 
+    name: organizer-network
