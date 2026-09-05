@@ -132,7 +132,7 @@ async function main() {
 
         const textInput = new TextInputBuilder()
           .setCustomId('value')
-          .setPlaceholder(value)
+          .setValue(value)
           .setStyle(property === 'content' ? TextInputStyle.Paragraph : TextInputStyle.Short)
           .setRequired(true);
 
