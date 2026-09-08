@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editList, getBoard, getBoards, getList, newList } from "../helpers/db";
-import { createListReply, SlashCommandBuilder } from "../helpers/utils";
+import { checkPermission, createListReply, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -91,6 +91,7 @@ export default createCommand({
     if (focusedOption.name === 'board') {
       const boards = await getBoards();
       const filtered = boards.filter(choice => 
+        checkPermission("view-board", interaction.user, choice) &&
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(

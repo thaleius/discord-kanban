@@ -1,27 +1,34 @@
-import { ActionRowBuilder, APIEmbedField, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, EmbedBuilder, InteractionContextType, InteractionEditReplyOptions, InteractionReplyOptions, SlashCommandBuilder as SCB, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, User } from "discord.js";
-import { EMBED } from "../../config.json";
-import { Assignment, Board, Card, ContentHistory, List, Prisma } from "../generated/prisma/client";
+import { ActionRowBuilder, APIEmbedField, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, EmbedBuilder, InteractionContextType, InteractionEditReplyOptions, InteractionReplyOptions, ReadonlyCollection, SlashCommandBuilder as SCB, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, User } from "discord.js";
+import { DISCORD, EMBED } from "../../config.json";
+import { Board, Card, List, Prisma } from "../generated/prisma/client";
 
-export const Embed = (title: string, subtitle: string | null = null) => {
-  return new EmbedBuilder()
+export const Embed = (title: string, icon: string | null, subtitle: string | null = null, footer: string | null = null) => {
+  const embed = new EmbedBuilder()
     .setColor(`#${EMBED.COLOR ? EMBED.COLOR.replaceAll('#', '') : '003153'}`)
-    .setTitle(title)
-    .setFooter(subtitle ? { text: subtitle } : null)
     .setAuthor({
-      name: EMBED.NAME,
-      iconURL: EMBED.ICON
+      name: title,
+      iconURL: icon ?? undefined
     })
+
+  if (subtitle) embed.setTitle(subtitle);
+  if (footer) embed.setFooter({ text: footer });
+
+  return embed;
 }
 
-export const formatAssignees = (assignments: (Assignment & Prisma.AssignmentGetPayload<{
-  include: {
-    assignee: true
+export const formatAssignees = (assignments: Prisma.AssignmentGetPayload<{
+  select: {
+    assignee: {
+      select: {
+        discordId: true
+      }
+    }
   }
-}>)[]) => {
+}>[]) => {
   return '👤 ' + assignments.map(assignment => `<@${assignment.assignee.discordId}>`).join(', ');
 }
 
-export const valueBuilder = (list: List & Prisma.ListGetPayload<{
+export const valueBuilder = (list: Prisma.ListGetPayload<{
   include: {
     cards: {
       include: {
@@ -56,27 +63,41 @@ export const SlashCommandBuilder = () => new SCB()
     ApplicationIntegrationType.UserInstall
   )
 
-export const sortCardContentHistory = (content: (ContentHistory & Prisma.ContentHistoryGetPayload<{
-  include: {
-    createdBy: true
+export const sortCardContentHistory = (content: Prisma.ContentHistoryGetPayload<{
+  select: {
+    value: true,
+    createdBy: {
+      select: {
+        discordId: true
+      }
+    },
+    createdAt: true
   }
-}>)[]) => content.toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}>[]) => content.toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-const createListButtons = (lists: List[]) => {
-  return lists.map(list =>
-    new ButtonBuilder()
-      .setCustomId('list_' + list.id)
-      .setLabel(list.name)
-      .setEmoji('📋')
-      .setStyle(ButtonStyle.Secondary)
-  );
+const createListSelect = (lists: List[]) => {
+  if (lists.length > 0) {
+    const listSelect = new StringSelectMenuBuilder()
+      .setCustomId('list')
+      .setPlaceholder('Select a List.')
+      .addOptions(
+        ...lists.map(list => new StringSelectMenuOptionBuilder()
+            .setLabel(list.name)
+            .setValue(list.id.toString())
+            .setEmoji('📋')
+        )
+      )
+    return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(listSelect);
+  }
+
+  return null;
 }
 
 const createCardSelect = (cards: Card[]) => {
   if (cards.length > 0) {
     const cardSelect = new StringSelectMenuBuilder()
       .setCustomId('card')
-      .setPlaceholder('Select a card.')
+      .setPlaceholder('Select a Card.')
       .addOptions(
         ...cards.map(card => new StringSelectMenuOptionBuilder()
             .setLabel(card.title)
@@ -125,7 +146,7 @@ const createCardEditButtons = (card: Card & Prisma.CardGetPayload<{
   ]
 }
 
-export const createBoardEmbed = (board: Board & Prisma.BoardGetPayload<{
+export const createBoardEmbed = (board: Prisma.BoardGetPayload<{
   include: {
     lists: {
       include: {
@@ -133,7 +154,11 @@ export const createBoardEmbed = (board: Board & Prisma.BoardGetPayload<{
           include: {
             assignments: {
               include: {
-                assignee: true
+                assignee: {
+                  select: {
+                    discordId: true
+                  }
+                }
               }
             }
           }
@@ -151,10 +176,10 @@ export const createBoardEmbed = (board: Board & Prisma.BoardGetPayload<{
   return field;
 });
 
-return Embed(board.name).addFields(fields);
+return Embed(board.name, board.icon).addFields(fields);
 }
 
-export const createListEmbed = (list: List & Prisma.ListGetPayload<{
+export const createListEmbed = (list: Prisma.ListGetPayload<{
   include: {
     board: true,
     cards: {
@@ -168,7 +193,7 @@ export const createListEmbed = (list: List & Prisma.ListGetPayload<{
     }
   }
 }>) => {
-  const embed = Embed(list.name, list.board.name);
+  const embed = Embed(list.board.name, list.board.icon, list.name);
   const content = valueBuilder(list);
   if (content) {
     embed.setDescription(content);
@@ -176,23 +201,44 @@ export const createListEmbed = (list: List & Prisma.ListGetPayload<{
   return embed;
 }
 
-export const createCardEmbed = (card: Card & Prisma.CardGetPayload<{
-  include: {
-    board: true,
-    list: true,
+export const createCardEmbed = (card: Prisma.CardGetPayload<{
+  select: {
+    title: true,
     content: {
-      include: {
-        createdBy: true
+      select: {
+        value: true,
+        createdBy: {
+          select: {
+            discordId: true
+          }
+        },
+        createdAt: true
       }
     },
+    url: true,
     assignments: {
-      include: {
-        assignee: true
+      select: {
+        assignee: {
+          select: {
+            discordId: true
+          }
+        }
+      }
+    },
+    board: {
+      select: {
+        name: true,
+        icon: true
+      }
+    },
+    list: {
+      select: {
+        name: true
       }
     }
   }
 }>, history: boolean = false) => {
-  const embed = Embed(card.title + (history ? ' [History]' : ''), card.board.name + ' | ' + card.list.name)
+  const embed = Embed(card.board.name, card.board.icon, card.title + (history ? ' [History]' : ''), card.list.name)
   if (card.url) {
     embed.setURL(card.url);
   }
@@ -227,7 +273,15 @@ export const createBoardReply = (board: Board & Prisma.BoardGetPayload<{
       include: {
         cards: {
           include: {
-            assignments: true
+            assignments: {
+              select: {
+                assignee: {
+                  select: {
+                    discordId: true
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -243,20 +297,61 @@ export const createBoardReply = (board: Board & Prisma.BoardGetPayload<{
     reply.withResponse = true;
   }
   
-  const listButtons = createListButtons(board.lists);
+  const listSelect = createListSelect(board.lists);
   const cardSelect = createCardSelect(board.cards);
+
+  const newListButton = new ButtonBuilder()
+    .setCustomId(`list-new_${board.id}`)
+    .setLabel('New List')
+    .setStyle(ButtonStyle.Success);
+
+  const deleteListButton = new ButtonBuilder()
+    .setCustomId(`board-list-delete_${board.id}`)
+    .setLabel('Delete a List')
+    .setStyle(ButtonStyle.Danger);
+
+  const newCardButton = new ButtonBuilder()
+    .setCustomId(`board-card-new_${board.id}`)
+    .setLabel('New Card')
+    .setStyle(ButtonStyle.Success);
 
   const moveCardButton = new ButtonBuilder()
     .setCustomId(`board-card-move_${board.id}`)
     .setLabel('Move Card')
     .setStyle(ButtonStyle.Secondary);
 
-  const assignCardButton = new ButtonBuilder()
-    .setCustomId(`board-card-assign_${board.id}`)
-    .setLabel('Assign/unassign')
-    .setStyle(ButtonStyle.Secondary);
+  const deleteCardButton = new ButtonBuilder()
+    .setCustomId(`board-card-delete_${board.id}`)
+    .setLabel('Delete a Card')
+    .setStyle(ButtonStyle.Danger);
 
-  const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [new ActionRowBuilder<ButtonBuilder>().addComponents(...listButtons, moveCardButton, assignCardButton)];
+  const settingsButton = new ButtonBuilder()
+    .setCustomId(`board-settings_${board.id}`)
+    .setLabel('Settings')
+    .setStyle(ButtonStyle.Primary);
+
+  const permissionsButton = new ButtonBuilder()
+    .setCustomId(`board-permissions_${board.id}`)
+    .setLabel('Permissions')
+    .setStyle(ButtonStyle.Primary);
+
+  const cardButtons = [newCardButton];
+  if (board.cards.length > 0) {
+    cardButtons.push(deleteCardButton, moveCardButton);
+  }
+
+  const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      ...[
+        newListButton,
+        board.lists.length > 0 ? deleteListButton : null,
+        settingsButton,
+        permissionsButton
+      ].filter(button => button !== null)
+    ),
+    // new ActionRowBuilder<ButtonBuilder>().addComponents(...cardButtons)
+  ];
+  if (listSelect) components.push(listSelect);
   if (cardSelect) components.push(cardSelect);
 
   reply.components = components;
@@ -264,7 +359,7 @@ export const createBoardReply = (board: Board & Prisma.BoardGetPayload<{
   return reply;
 }
 
-export const createListReply = (list: List & Prisma.ListGetPayload<{
+export const createListReply = (list: Prisma.ListGetPayload<{
   include: {
     board: true,
     cards: {
@@ -294,12 +389,28 @@ export const createListReply = (list: List & Prisma.ListGetPayload<{
     .setLabel('Back to Board')
     .setStyle(ButtonStyle.Secondary);
 
+  const deleteListButton = new ButtonBuilder()
+    .setCustomId(`list-delete_${list.id}`)
+    .setLabel('Delete List')
+    .setStyle(ButtonStyle.Danger);
+    
   const newCardButton = new ButtonBuilder()
-    .setCustomId(`card-new_${list.boardId}_${list.id}`)
+    .setCustomId(`list-card-new_${list.boardId}_${list.id}`)
     .setLabel('New Card')
-    .setStyle(ButtonStyle.Secondary);
+    .setStyle(ButtonStyle.Success);
 
-  const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [new ActionRowBuilder<ButtonBuilder>().addComponents(back, newCardButton)];
+  const deleteCardButton = new ButtonBuilder()
+    .setCustomId(`list-card-delete_${list.id}`)
+    .setLabel('Delete a Card')
+    .setStyle(ButtonStyle.Danger);
+
+  const cardButtons = [newCardButton];
+  if (list.cards.length > 0) cardButtons.push(deleteCardButton);
+
+  const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [
+    new ActionRowBuilder<ButtonBuilder>().addComponents(back, deleteListButton),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(...cardButtons)
+  ];
   if (cardSelect) components.push(cardSelect);
 
   reply.components = components;
@@ -307,18 +418,37 @@ export const createListReply = (list: List & Prisma.ListGetPayload<{
   return reply;
 }
 
-export const createCardReply = (card: Card & Prisma.CardGetPayload<{
-  include: {
-    board: true,
-    list: true,
+export const createCardReply = (card: Prisma.CardGetPayload<{
+  select: {
+    id: true,
+    title: true,
     content: {
-      include: {
-        createdBy: true
+      select: {
+        value: true,
+        createdBy: {
+          select: {
+            discordId: true
+          }
+        },
+        createdAt: true
       }
     },
+    url: true,
     assignments: {
-      include: {
+      select: {
         assignee: true
+      }
+    },
+    listId: true,
+    board: {
+      select: {
+        name: true,
+        icon: true
+      }
+    },
+    list: {
+      select: {
+        name: true
       }
     }
   }
@@ -337,15 +467,20 @@ export const createCardReply = (card: Card & Prisma.CardGetPayload<{
     .setLabel('Back to List')
     .setStyle(ButtonStyle.Secondary);
 
+  const deleteCardButton = new ButtonBuilder()
+    .setCustomId(`card-delete_${card.id}`)
+    .setLabel('Delete Card')
+    .setStyle(ButtonStyle.Danger);
+
   const moveCardButton = new ButtonBuilder()
     .setCustomId(`card-move_${card.id}`)
     .setLabel('Move Card')
     .setStyle(ButtonStyle.Secondary);
 
-  const assignCardButton = new ButtonBuilder()
-    .setCustomId(`card-assign_${card.id}`)
-    .setLabel('Assign/unassign')
-    .setStyle(ButtonStyle.Secondary);
+  const settingsButton = new ButtonBuilder()
+    .setCustomId(`card-settings_${card.id}`)
+    .setLabel('Settings')
+    .setStyle(ButtonStyle.Primary);
 
   const historyCardButton = new ButtonBuilder()
     .setCustomId(`card-history_${card.id}`)
@@ -353,8 +488,7 @@ export const createCardReply = (card: Card & Prisma.CardGetPayload<{
     .setStyle(ButtonStyle.Secondary);
 
   const components: ActionRowBuilder<ButtonBuilder>[] = [
-    new ActionRowBuilder<ButtonBuilder>().addComponents(back, assignCardButton, moveCardButton),
-    new ActionRowBuilder<ButtonBuilder>().addComponents(...createCardEditButtons(card), historyCardButton)
+    new ActionRowBuilder<ButtonBuilder>().addComponents(back, deleteCardButton, settingsButton, moveCardButton, historyCardButton)
   ];
   reply.components = components;
 
@@ -366,5 +500,127 @@ export const formatUser = (user: User) => {
     id: user.id,
     username: user.username,
     displayName: user.globalName
+  }
+}
+
+export const CheckBoardPermission = {
+  owner: {
+    select: {
+      discordId: true
+    }
+  },
+  boardManager: {
+    select: {
+      discordId: true
+    }
+  },
+  boardViewer: {
+    select: {
+      discordId: true
+    }
+  },
+  listManager: {
+    select: {
+      discordId: true
+    }
+  },
+  cardManager: {
+    select: {
+      discordId: true
+    }
+  }
+}
+export const CheckCardPermission = {
+  permittedUsers: {
+    select: {
+      discordId: true
+    }
+  },
+  permittedRoles: {
+    select: {
+      discordId: true
+    }
+  }
+}
+
+type PermType = 'board' | 'list' | 'card' | 'view-board';
+export const checkPermission = (type: PermType, userInfo: User, board: Prisma.BoardGetPayload<{
+  select: typeof CheckBoardPermission
+}>, card?: Prisma.CardGetPayload<{
+    select: typeof CheckCardPermission
+  }>) => {
+  if (
+    DISCORD.ADMIN_IDs.includes(userInfo.id) ||
+    userInfo.id === board.owner.discordId ||
+    board.boardManager.find(user => user.discordId === userInfo.id)
+  ) {
+    return true;
+  }
+
+  if (type === 'view-board') {
+    if (
+      board.listManager.find(user => user.discordId === userInfo.id) ||
+      board.cardManager.find(user => user.discordId === userInfo.id) ||
+      board.boardViewer.find(user => user.discordId === userInfo.id)
+    ) {
+      return true;
+    }
+  } else if (type === 'list') {
+    if (
+      board.listManager.find(user => user.discordId === userInfo.id)
+    ) {
+      return true;
+    }
+  } else if (type === 'card') {
+    if (
+      board.cardManager.find(user => user.discordId === userInfo.id)
+    ) {
+      return true;
+    }
+
+    if (
+      card && card.permittedUsers.find(user => user.discordId === userInfo.id)
+    ) {
+      return true;
+    } 
+  }
+
+  return false;
+}
+
+export const prepareUserList = (currentUsers: string[], newUsers?: ReadonlyCollection<string, User> | null) => {
+  const removeUsers = [] as string[];
+  const addUsers = [] as User[];
+
+  for (const id of currentUsers) {
+    if (!newUsers?.has(id)) {
+      removeUsers.push(id);
+    }
+  }
+
+  if (newUsers) {
+    for (const id of newUsers) {
+      if (!currentUsers.includes(id[0])) {
+        addUsers.push(id[1]);
+      }
+    }
+  }
+
+  return {
+    add: addUsers,
+    remove: removeUsers
+  }
+}
+
+export const modifiedBy = (user: User) => {
+  return {
+    connectOrCreate: {
+      where: { discordId: user.id },
+      create: {
+        discordId: user.id,
+        username: user.username,
+        displayName: user.displayName
+      }
+    }
   }
 }

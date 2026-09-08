@@ -14,35 +14,45 @@ datasource db {
 }
 
 model Board {
-  id              Int       @id @default(autoincrement())
-  name            String    @unique
-  description     String?
-  lists           List[]
-  cards           Card[]
-  createdById     Int
-  createdBy       User      @relation("CreatedBoards", fields: [createdById], references: [id])
-  modifiedById    Int
-  modifiedBy      User      @relation("ModifiedBoards", fields: [modifiedById], references: [id])
-  createdAt       DateTime  @default(now())
-  modifiedAt      DateTime  @updatedAt
+  id                Int             @id @default(autoincrement())
+  name              String          @unique
+  description       String?
+  icon              String?
+  lists             List[]
+  cards             Card[]
+  ownerId           Int
+  owner             User            @relation("OwnedBoards", fields: [ownerId], references: [id])
+  boardViewer       User[]          @relation("BoardViewer")
+  boardViewerRoles  Role[]          @relation("BoardViewerRoles")
+  boardManager      User[]          @relation("BoardManager")
+  boardManagerRoles Role[]          @relation("BoardManagerRoles")
+  listManager       User[]          @relation("ListManager")
+  listManagerRoles  Role[]          @relation("ListManagerRoles")
+  cardManager       User[]          @relation("CardManager")
+  cardManagerRoles  Role[]          @relation("CardManagerRoles")
+  createdById       Int
+  createdBy         User            @relation("CreatedBoards", fields: [createdById], references: [id])
+  modifiedById      Int
+  modifiedBy        User            @relation("ModifiedBoards", fields: [modifiedById], references: [id])
+  createdAt         DateTime        @default(now())
+  modifiedAt        DateTime        @updatedAt
 }
 
 model List {
-  id              Int       @id @default(autoincrement())
-  name            String
-  description     String?
-  createdById     Int
-  createdBy       User      @relation("CreatedLists", fields: [createdById], references: [id])
-  modifiedById    Int
-  modifiedBy      User      @relation("ModifiedLists", fields: [modifiedById], references: [id])
-  boardId         Int
-  board           Board     @relation(fields: [boardId], references: [id])
-  cards           Card[]
-  subscribers     User[]    @relation("ListSubscribers")
-  createdAt       DateTime  @default(now())
-  modifiedAt      DateTime  @updatedAt
-
-  @@unique([name, boardId])
+  id                Int       @id @default(autoincrement())
+  name              String
+  description       String?
+  createdById       Int
+  createdBy         User      @relation("CreatedLists", fields: [createdById], references: [id])
+  modifiedById      Int
+  modifiedBy        User      @relation("ModifiedLists", fields: [modifiedById], references: [id])
+  boardId           Int
+  board             Board     @relation(fields: [boardId], references: [id])
+  cards             Card[]
+  subscribers       User[]    @relation("ListSubscribers")
+  deleted           Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  modifiedAt        DateTime  @updatedAt
 }
 
 model Assignment {
@@ -62,6 +72,8 @@ model Card {
   id                Int               @id @default(autoincrement())
   title             String
   content           ContentHistory[]
+  permittedUsers    User[]
+  permittedRoles    Role[]
   createdById       Int
   createdBy         User              @relation("CreatedCards", fields: [createdById], references: [id])
   modifiedById      Int
@@ -80,10 +92,9 @@ model Card {
   endDate           DateTime?
   dueDate           DateTime?
   complete          Boolean           @default(false)
+  deleted           Boolean           @default(false)
   createdAt         DateTime          @default(now())
   modifiedAt        DateTime          @updatedAt
-
-  @@unique([title, boardId])
 }
 
 model ContentHistory {
@@ -157,6 +168,7 @@ model User {
   discordId             String            @unique
   username              String?
   displayName           String?
+  ownedBoards           Board[]           @relation("OwnedBoards")
   createdLists          List[]            @relation("CreatedLists")
   createdBoards         Board[]           @relation("CreatedBoards")
   createdCards          Card[]            @relation("CreatedCards")
@@ -171,8 +183,23 @@ model User {
   attachments           Attachment[]
   assignments           Assignment[]      @relation("Assignees")
   assigned              Assignment[]      @relation("Assigners")
+  viewableBoards        Board[]           @relation("BoardViewer")
+  managingBoards        Board[]           @relation("BoardManager")
+  managingLists         Board[]           @relation("ListManager")
+  managingCards         Board[]           @relation("CardManager")
+  permittedCards        Card[]
   subscribedLists       List[]            @relation("ListSubscribers")
   subscribedCards       Card[]            @relation("CardSubscribers")
   updatedAt             DateTime          @updatedAt
   createdAt             DateTime          @default(now())
+}
+
+model Role {
+  id                    Int               @id @default(autoincrement())
+  discordId             String
+  viewableBoards        Board[]           @relation("BoardViewerRoles")
+  managingBoards        Board[]           @relation("BoardManagerRoles")
+  managingLists         Board[]           @relation("ListManagerRoles")
+  managingCards         Board[]           @relation("CardManagerRoles")
+  permittedCards        Card[]
 }

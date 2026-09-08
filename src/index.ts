@@ -1,7 +1,7 @@
-import { Client, Events, GatewayIntentBits, LabelBuilder, ModalBuilder, Partials, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from "discord.js";
+import { Client, Events, GatewayIntentBits, LabelBuilder, MessageFlags, ModalBuilder, Partials, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from "discord.js";
 import { DISCORD } from '../config.json';
-import { cardAssign, CardInclude, cardUnassign, ContentInclude, editCard, getBoard, getCard, getCardHistory, ListInclude, moveCard, newCard } from "./helpers/db";
-import { createBoardReply, createCardReply, createListReply, formatUser, sortCardContentHistory } from "./helpers/utils";
+import { boardPerms, deleteCard, deleteList, editBoard, editCard, getBoard, getCard, getCardHistory, getList, moveCard, newCard, newList } from "./helpers/db";
+import { checkPermission, createBoardReply, createCardReply, createListReply, sortCardContentHistory } from "./helpers/utils";
 import { prisma } from "./lib/prisma";
 import { deployGlobalCommands } from "./utils/deployGlobalCommands";
 
@@ -44,12 +44,12 @@ async function main() {
         if (interaction.replied || interaction.deferred)
           await interaction.followUp({
             content: "There was an error while executing this command!",
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral]
           });
         else
           await interaction.reply({
             content: "There was an error while executing this command!",
-            ephemeral: true,
+            flags: [MessageFlags.Ephemeral]
           });
       }
     } else if (interaction.isAutocomplete()) {
@@ -66,46 +66,334 @@ async function main() {
         console.error('Autocomplete Error:', error);
       }
     } else if (interaction.isButton()) {
-      if (interaction.customId.startsWith('list_')) {
-        const listId = parseInt(interaction.customId.split('_')[1]);
-        const list = await prisma.list.findUnique({
-          where: { id: listId },
-          include: ListInclude
+      if (interaction.customId.startsWith('board-settings_')) {
+        const boardId = parseInt(interaction.customId.split('_')[1]);
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
         });
-        if (!list) return await interaction.update();
 
-        await interaction.update(createListReply(list, null, true));
+        if (!checkPermission('board', interaction.user, board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to change the settings of this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Settings')
+
+        const nameInput = new TextInputBuilder()
+          .setCustomId('name')
+          .setPlaceholder('Name')
+          .setValue(board.name)
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const iconInput = new TextInputBuilder()
+          .setCustomId('icon')
+          .setPlaceholder('Icon')
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false);
+
+        const nameInputLabel = new LabelBuilder()
+          .setLabel('Name:')
+          .setTextInputComponent(nameInput);
+
+        const iconInputLabel = new LabelBuilder()
+          .setLabel('Icon:')
+          .setTextInputComponent(iconInput);
+
+        modal.addLabelComponents(nameInputLabel, iconInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('board-permissions_')) {
+        const boardId = parseInt(interaction.customId.split('_')[1]);
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('board', interaction.user, board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to change the settings of this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Permissions')
+
+        const boardViewerInput = new UserSelectMenuBuilder()
+          .setCustomId('boardviewer')
+          .setPlaceholder('Board Viewer')
+          .setDefaultUsers(board.boardViewer.map(viewer => viewer.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
+
+        const boardViewerInputLabel = new LabelBuilder()
+          .setLabel('Board Viewer:')
+          .setUserSelectMenuComponent(boardViewerInput);
+
+        const boardManagerInput = new UserSelectMenuBuilder()
+          .setCustomId('boardmanager')
+          .setPlaceholder('Board Manager')
+          .setDefaultUsers(board.boardManager.map(manager => manager.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
+
+        const boardManagerInputLabel = new LabelBuilder()
+          .setLabel('Board Manager:')
+          .setUserSelectMenuComponent(boardManagerInput);
+
+        const listManagerInput = new UserSelectMenuBuilder()
+          .setCustomId('listmanager')
+          .setPlaceholder('List Manager')
+          .setDefaultUsers(board.listManager.map(manager => manager.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
+
+        const listManagerInputLabel = new LabelBuilder()
+          .setLabel('List Manager:')
+          .setUserSelectMenuComponent(listManagerInput);
+
+        const cardManagerInput = new UserSelectMenuBuilder()
+          .setCustomId('cardmanager')
+          .setPlaceholder('Card Manager')
+          .setDefaultUsers(board.cardManager.map(manager => manager.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
+
+        const cardManagerInputLabel = new LabelBuilder()
+          .setLabel('Card Manager:')
+          .setUserSelectMenuComponent(cardManagerInput);
+
+        modal.addLabelComponents(boardViewerInputLabel, boardManagerInputLabel, listManagerInputLabel, cardManagerInputLabel);
+        await interaction.showModal(modal);
       } else if (interaction.customId.startsWith('board_')) {
         const boardId = parseInt(interaction.customId.split('_')[1]);
-        const board = await prisma.board.findUnique({
-          where: { id: boardId },
-          include: {
-            lists: {
-              include: ListInclude
-            },
-            cards: {
-              include: CardInclude
-            }
-          }
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
         });
-        if (!board) return await interaction.update();
+
+        if (!checkPermission('view-board', interaction.user, board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to view this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
 
         await interaction.update(createBoardReply(board, null, true));
+      } else if (interaction.customId.startsWith('list_')) {
+        const listId = parseInt(interaction.customId.split('_')[1]);
+        const list = await getList(listId);
+        if (!list) return await interaction.reply({
+          content: 'The List does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('view-board', interaction.user, list.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to view Lists of this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        await interaction.update(createListReply(list, null, true));
+      } else if (interaction.customId.startsWith('list-new_')) {
+        const boardId = parseInt(interaction.customId.split('_')[1]);
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('list', interaction.user, board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to create Lists on this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('New List')
+
+        const nameInput = new TextInputBuilder()
+          .setCustomId('name')
+          .setPlaceholder('Name')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const descriptionInput = new TextInputBuilder()
+          .setCustomId('description')
+          .setPlaceholder('Description')
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false);
+
+        const nameInputLabel = new LabelBuilder()
+          .setLabel('Title:')
+          .setTextInputComponent(nameInput);
+
+        const descriptionInputLabel = new LabelBuilder()
+          .setLabel('Description:')
+          .setTextInputComponent(descriptionInput);
+
+        modal.addLabelComponents(nameInputLabel, descriptionInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('board-list-delete_')) {
+        const boardId = parseInt(interaction.customId.split('_')[1]);
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('list', interaction.user, board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to delete Lists of this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Delete List')
+
+        const listSelect = new StringSelectMenuBuilder()
+          .setCustomId('list')
+          .setPlaceholder('Select a List.')
+          .addOptions(
+            ...board.lists.map(list => 
+              new StringSelectMenuOptionBuilder()
+                .setLabel(list.name)
+                .setValue(list.id.toString())
+            )
+          );
+
+        const nameInput = new TextInputBuilder()
+          .setCustomId('name')
+          .setPlaceholder('Name')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const listSelectLabel = new LabelBuilder()
+          .setLabel('Select a List to delete:')
+          .setStringSelectMenuComponent(listSelect);
+
+        const nameInputLabel = new LabelBuilder()
+          .setLabel('Type the name of the List to confirm:')
+          .setTextInputComponent(nameInput);
+
+        modal.addLabelComponents(listSelectLabel, nameInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('list-card-delete_')) {
+        const listId = parseInt(interaction.customId.split('_')[1]);
+        const list = await getList(listId);
+        if (!list) return await interaction.reply({
+          content: 'The List does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('card', interaction.user, list.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to delete this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Delete Card')
+
+        const cardSelect = new StringSelectMenuBuilder()
+          .setCustomId('card')
+          .setPlaceholder('Select a Card.')
+          .addOptions(
+            ...list.cards.map(card => 
+              new StringSelectMenuOptionBuilder()
+                .setLabel(card.title)
+                .setValue(card.id.toString())
+            )
+          );
+
+        const titleInput = new TextInputBuilder()
+          .setCustomId('title')
+          .setPlaceholder('Title')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const cardSelectLabel = new LabelBuilder()
+          .setLabel('Select a Card to delete:')
+          .setStringSelectMenuComponent(cardSelect);
+
+        const titleInputLabel = new LabelBuilder()
+          .setLabel('Type the title of the Card to confirm:')
+          .setTextInputComponent(titleInput);
+
+        modal.addLabelComponents(cardSelectLabel, titleInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('list-delete_')) {
+        const listId = parseInt(interaction.customId.split('_')[1]);
+        const list = await getList(listId);
+        if (!list) return await interaction.reply({
+          content: 'The List does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('list', interaction.user, list.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to delete Lists of this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Delete List')
+
+        const nameInput = new TextInputBuilder()
+          .setCustomId('name')
+          .setPlaceholder('Name')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const nameInputLabel = new LabelBuilder()
+          .setLabel('Type the name of the List to confirm:')
+          .setTextInputComponent(nameInput);
+
+        modal.addLabelComponents(nameInputLabel);
+        await interaction.showModal(modal);
       } else if (interaction.customId.startsWith('card-edit_')) {
-        const [_, boardName, cardIdStr, property] = interaction.customId.split('_');
+        const [_, __, cardIdStr, property] = interaction.customId.split('_');
         const cardId = parseInt(cardIdStr);
-        const card = await prisma.card.findUnique({
-          where: { id: cardId },
-          include: {
-            content: {
-              include: ContentInclude
-            }
-          }
-        })
-        if (!card) return interaction.update();
+        const card = await getCard(cardId)
+        if (!card) return await interaction.reply({
+          content: 'The Card does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('card', interaction.user, card.board, card)) {
+          return await interaction.reply({
+            content: 'You do not have permission to edit this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
 
         if (property !== 'title' && property !== 'content' && property !== 'url') {
-          return interaction.update();
+          return await interaction.reply({
+            content: 'Please define the property you want to edit.',
+            flags: [MessageFlags.Ephemeral]
+          });
         }
 
         const modal = new ModalBuilder()
@@ -142,7 +430,22 @@ async function main() {
 
         modal.addLabelComponents(inputLabel);
         await interaction.showModal(modal);
-      } else if (interaction.customId.startsWith('card-new_')) {
+      } else if (interaction.customId.startsWith('list-card-new_')) {
+        const [_, listIdStr] = interaction.customId.split('_');
+        const listId = parseInt(listIdStr);
+        const list = await getList(listId);
+        if (!list) return await interaction.reply({
+          content: 'The List does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('card', interaction.user, list.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to create Cards on this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
         const modal = new ModalBuilder()
           .setCustomId(interaction.customId)
           .setTitle('New Card')
@@ -183,21 +486,20 @@ async function main() {
         const [_, cardIdStr] = interaction.customId.split('_');
         const cardId = parseInt(cardIdStr);
 
-        const card = await prisma.card.findUnique({
-          where: { id: cardId },
-          select: {
-            board: {
-              select: {
-                lists: true
-              }
-            }
-          }
-        });
+        const card = await getCard(cardId);
         if (!card) {
-          await interaction.update({
-            content: 'Card does not exist.'
+          await interaction.reply({
+            content: 'Card does not exist.',
+            flags: [MessageFlags.Ephemeral]
           });
           return;
+        }
+
+        if (!checkPermission('card', interaction.user, card.board, card)) {
+          return await interaction.reply({
+            content: 'You do not have permission to move this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
         }
 
         const modal = new ModalBuilder()
@@ -225,22 +527,20 @@ async function main() {
         const [_, boardIdStr] = interaction.customId.split('_');
         const boardId = parseInt(boardIdStr);
 
-        const board = await prisma.board.findUnique({
-          where: { id: boardId },
-          select: {
-            cards: true,
-            lists: true
-          }
-        });
+        const board = await getBoard(boardId);
         if (!board) {
-          await interaction.update({
-            content: 'Board does not exist.'
+          await interaction.reply({
+            content: 'Board does not exist.',
+            flags: [MessageFlags.Ephemeral]
           });
           return;
         }
 
         if (board.cards.length === 0) {
-          await interaction.update("No cards to move.");
+          await interaction.reply({
+            content: "No cards to move.",
+            flags: [MessageFlags.Ephemeral]
+          });
           return;
         }
 
@@ -284,23 +584,19 @@ async function main() {
         const [_, boardIdStr] = interaction.customId.split('_');
         const boardId = parseInt(boardIdStr);
 
-        const board = await prisma.board.findUnique({
-          where: { id: boardId },
-          select: {
-            cards: true,
-            lists: true
-          }
-        });
+        const board = await getBoard(boardId);
         if (!board) {
-          await interaction.update({
-            content: 'Board does not exist.'
+          await interaction.reply({
+            content: 'Board does not exist.',
+            flags: [MessageFlags.Ephemeral]
           });
           return;
         }
 
         if (board.cards.length === 0) {
-          await interaction.update({
-            content: 'Board does not have any cards.'
+          await interaction.reply({
+            content: 'Board does not have any cards.',
+            flags: [MessageFlags.Ephemeral]
           });
           return;
         }
@@ -320,127 +616,301 @@ async function main() {
             )
           );
 
-        const optionSelect = new StringSelectMenuBuilder()
-          .setCustomId('option')
-          .setPlaceholder('assign/unassign')
-          .addOptions(
-            new StringSelectMenuOptionBuilder()
-                .setLabel('assign')
-                .setValue('assign')
-                .setDefault(true),
-            new StringSelectMenuOptionBuilder()
-                .setLabel('unassign')
-                .setValue('unassign')
-          );
-
         const assigneeSelect = new UserSelectMenuBuilder()
           .setCustomId('assignee')
-          .setPlaceholder('Select an Assignee.');
+          .setPlaceholder('Assignees')
+          .setRequired(false);
 
         const cardSelectLabel = new LabelBuilder()
           .setLabel('Select a Card:')
           .setStringSelectMenuComponent(cardSelect);
 
-        const optionSelectLabel = new LabelBuilder()
-          .setLabel('Select an option:')
-          .setStringSelectMenuComponent(optionSelect);
-
         const assigneeSelectLabel = new LabelBuilder()
-          .setLabel('Select an Assignee:')
+          .setLabel('Assignees')
           .setUserSelectMenuComponent(assigneeSelect);
 
-        modal.addLabelComponents(cardSelectLabel, optionSelectLabel, assigneeSelectLabel);
+        modal.addLabelComponents(cardSelectLabel, assigneeSelectLabel);
         await interaction.showModal(modal);
-      } else if (interaction.customId.startsWith('card-assign_')) {
+      } else if (interaction.customId.startsWith('board-card-delete_')) {
+        const boardId = parseInt(interaction.customId.split('_')[1]);
+        const board = await getBoard(boardId);
+        if (!board) return await interaction.reply({
+          content: 'The Board does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
         const modal = new ModalBuilder()
           .setCustomId(interaction.customId)
-          .setTitle('Assign a User to a Card')
+          .setTitle('Delete Card')
 
-        const optionSelect = new StringSelectMenuBuilder()
-          .setCustomId('option')
-          .setPlaceholder('assign/unassign')
+        const cardSelect = new StringSelectMenuBuilder()
+          .setCustomId('card')
+          .setPlaceholder('Select a Card.')
           .addOptions(
-            new StringSelectMenuOptionBuilder()
-                .setLabel('assign')
-                .setValue('assign')
-                .setDefault(true),
-            new StringSelectMenuOptionBuilder()
-                .setLabel('unassign')
-                .setValue('unassign')
+            ...board.cards.map(card => 
+              new StringSelectMenuOptionBuilder()
+                .setLabel(card.title)
+                .setValue(card.id.toString())
+            )
           );
 
-        const assigneeSelect = new UserSelectMenuBuilder()
-          .setCustomId('assignee')
-          .setPlaceholder('Select an Assignee.');
+        const title = new TextInputBuilder()
+          .setCustomId('title')
+          .setPlaceholder('Title')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
 
-        const optionSelectLabel = new LabelBuilder()
-          .setLabel('Select an option:')
-          .setStringSelectMenuComponent(optionSelect);
+        const cardSelectLabel = new LabelBuilder()
+          .setLabel('Select a Card to delete:')
+          .setStringSelectMenuComponent(cardSelect);
+
+        const nameInputLabel = new LabelBuilder()
+          .setLabel('Type the title of the Card to confirm:')
+          .setTextInputComponent(title);
+
+        modal.addLabelComponents(cardSelectLabel, nameInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('card-delete_')) {
+        const cardId = parseInt(interaction.customId.split('_')[1]);
+        const card = await getCard(cardId);
+        if (!card) return await interaction.reply({
+          content: 'The Card does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+        
+        if (!checkPermission('card', interaction.user, card.board, card)) {
+          return await interaction.reply({
+            content: 'You do not have permission to delete this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Delete Card')
+
+        const titleInput = new TextInputBuilder()
+          .setCustomId('title')
+          .setPlaceholder('Title')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const titleInputLabel = new LabelBuilder()
+          .setLabel('Type the title of the Card to confirm:')
+          .setTextInputComponent(titleInput);
+
+        modal.addLabelComponents(titleInputLabel);
+        await interaction.showModal(modal);
+      } else if (interaction.customId.startsWith('card-settings_')) {
+        const [_, cardIdStr] = interaction.customId.split('_');
+        const cardId = parseInt(cardIdStr);
+
+        const card = await getCard(cardId);
+        if (!card) {
+          await interaction.reply({
+            content: 'Card does not exist.',
+            flags: [MessageFlags.Ephemeral]
+          });
+          return;
+        }
+
+        if (!checkPermission('card', interaction.user, card.board, card)) {
+          return await interaction.reply({
+            content: 'You do not have permission to change the settings of this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId(interaction.customId)
+          .setTitle('Card settings')
+
+        const titleInput = new TextInputBuilder()
+          .setCustomId('title')
+          .setPlaceholder('Title')
+          .setValue(card.title)
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        const titleInputLabel = new LabelBuilder()
+          .setLabel('Title:')
+          .setTextInputComponent(titleInput);
+
+        const contentInput = new TextInputBuilder()
+          .setCustomId('content')
+          .setPlaceholder('Content')
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false);
+        const cardContent = sortCardContentHistory(card.content)[0].value;
+        if (cardContent) contentInput.setValue(cardContent);
+
+        const contentInputLabel = new LabelBuilder()
+          .setLabel('Content:')
+          .setTextInputComponent(contentInput);
+
+        const urlInput = new TextInputBuilder()
+          .setCustomId('url')
+          .setPlaceholder('URL')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(false);
+        if (card.url) urlInput.setValue(card.url);
+
+        const urlInputLabel = new LabelBuilder()
+          .setLabel('URL:')
+          .setTextInputComponent(urlInput);
+
+        const assigneeSelect = new UserSelectMenuBuilder()
+          .setCustomId('assignees')
+          .setPlaceholder('Assignees')
+          .setDefaultUsers(card.assignments.map(assignment => assignment.assignee.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
 
         const assigneeSelectLabel = new LabelBuilder()
-          .setLabel('Select an Assignee:')
+          .setLabel('Assignees:')
           .setUserSelectMenuComponent(assigneeSelect);
 
-        modal.addLabelComponents(optionSelectLabel, assigneeSelectLabel);
+        const cardManagerSelect = new UserSelectMenuBuilder()
+          .setCustomId('cardmanager')
+          .setPlaceholder('Card Manager')
+          .setDefaultUsers(card.permittedUsers.map(user => user.discordId))
+          .setMinValues(1)
+          .setMaxValues(25)
+          .setRequired(false);
+
+        const cardManagerSelectLabel = new LabelBuilder()
+          .setLabel('Select Managers for this Card:')
+          .setUserSelectMenuComponent(cardManagerSelect);
+
+        modal.addLabelComponents(titleInputLabel, contentInputLabel, urlInputLabel, assigneeSelectLabel, cardManagerSelectLabel);
         await interaction.showModal(modal);
       } else if (interaction.customId.startsWith('card-history_')) {
         const [_, cardIdStr] = interaction.customId.split('_');
         const cardId = parseInt(cardIdStr);
 
-        const card = await prisma.card.findUnique({
-          where: { id: cardId },
-          select: {
-            content: true
-          }
-        });
+        const card = await getCard(cardId);
         if (!card) {
-          await interaction.update({
-            content: 'Card does not exist.'
+          await interaction.reply({
+            content: 'Card does not exist.',
+            flags: [MessageFlags.Ephemeral]
           });
           return;
+        }
+
+        if (!checkPermission('view-board', interaction.user, card.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to view the history of this Card.',
+            flags: [MessageFlags.Ephemeral]
+          });
         }
 
         const result = await getCardHistory(cardId);
         
         if (!result.card || result.error) {
-          await interaction.update({
-            content: result.error ?? `An error occured while fetching the content history of the Card with ID \`${cardId}\`.`
+          await interaction.reply({
+            content: result.error ?? `An error occured while fetching the content history of the Card with ID \`${cardId}\`.`,
+            flags: [MessageFlags.Ephemeral]
           });
         } else {
           await interaction.update(createCardReply(result.card, null, false, true));
         }
       }
     } else if (interaction.isStringSelectMenu()) {
-      if (interaction.customId === 'card') {
-        const cardId = parseInt(interaction.values[0]);
-        const card = await prisma.card.findUnique({
-          where: { id: cardId },
-          include: CardInclude
+      if (interaction.customId === 'list') {
+        const listId = parseInt(interaction.values[0]);
+        const list = await getList(listId);
+        if (!list) return await interaction.reply({
+          content: 'The List does not exist.',
+          flags: [MessageFlags.Ephemeral]
         });
-        if (!card) return await interaction.update();
+
+        if (!checkPermission('view-board', interaction.user, list.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to view Lists on this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
+
+        await interaction.update(createListReply(list, null, true))
+      } else if (interaction.customId === 'card') {
+        const cardId = parseInt(interaction.values[0]);
+        const card = await getCard(cardId);
+        if (!card) return await interaction.reply({
+          content: 'The Card does not exist.',
+          flags: [MessageFlags.Ephemeral]
+        });
+
+        if (!checkPermission('view-board', interaction.user, card.board)) {
+          return await interaction.reply({
+            content: 'You do not have permission to view Cards on this Board.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        }
 
         await interaction.update(createCardReply(card, null, true))
       }
     } else if (interaction.isModalSubmit()) {
       if (interaction.isFromMessage()) {
-        if (interaction.customId.startsWith('card-edit_')) {
-          const [_, __, cardIdStr, property] = interaction.customId.split('_');
-          const newValue = interaction.fields.getTextInputValue('value');
-          const cardId = parseInt(cardIdStr);
+        if (interaction.customId.startsWith('board-settings_')) {
+          const [_, boardIdStr] = interaction.customId.split('_');
+          const boardId = parseInt(boardIdStr);
+          const name = interaction.fields.getTextInputValue('name');
+          const icon = interaction.fields.getTextInputValue('icon');
 
-          if (property !== 'title' && property !== 'content' && property !== 'url') {
-            return interaction.update({
-              content: "Invalid property."
+          const result = await editBoard(interaction.user, boardId, { name, icon });
+          if (result.error || !result.board) {
+            await interaction.reply({
+              content: result.error,
+              flags: [MessageFlags.Ephemeral]
+            });
+            return;
+          }
+
+          await interaction.update(createBoardReply(result.board, null, false));
+        } else if (interaction.customId.startsWith('board-permissions_')) {
+          const [_, boardIdStr] = interaction.customId.split('_');
+          const boardId = parseInt(boardIdStr);
+          const boardViewer = interaction.fields.getSelectedUsers('boardviewer');
+          const boardManager = interaction.fields.getSelectedUsers('boardmanager');
+          const listManager = interaction.fields.getSelectedUsers('listmanager');
+          const cardManager = interaction.fields.getSelectedUsers('cardmanager');
+
+          const result = await boardPerms(interaction.user, boardId, { boardViewer, boardManager, listManager, cardManager });
+          if (result && result.error) {
+            await interaction.reply({
+              content: result.error,
+              flags: [MessageFlags.Ephemeral]
+            });
+            return;
+          }
+
+          await interaction.reply({
+            content: 'Permissions changed.',
+            flags: [MessageFlags.Ephemeral]
+          });
+        } else if (interaction.customId.startsWith('list-new_')) {
+          const [_, boardIdStr] = interaction.customId.split('_');
+          const boardId = parseInt(boardIdStr);
+
+          const listName = interaction.fields.getTextInputValue('name');
+          const listDescription = interaction.fields.getTextInputValue('description');
+
+          if (!listName) {
+            return interaction.reply({
+              content: "Missing List name.",
+              flags: [MessageFlags.Ephemeral]
             });
           }
-          
-          const result = await editCard(interaction.user, cardId, property, newValue);
-          if (!result.card) return interaction.update({
-            content: `An error occured while editing the Card with ID \`${cardIdStr}\`.`
-          });
 
-          await interaction.update(createCardReply(result.card, null, true));
-        } else if (interaction.customId.startsWith('card-new_')) {
+          const result = await newList(interaction.user, boardId, listName, listDescription);
+          if (result.error || !result.list) return interaction.reply({
+            content: result.error ?? "An error occured while creating the List.",
+            flags: [MessageFlags.Ephemeral]
+          })
+
+          await interaction.update(createBoardReply(result.list.board, null, false));
+        } else if (interaction.customId.startsWith('list-card-new_')) {
           const [_, boardIdStr, listIdStr] = interaction.customId.split('_');
           const boardId = parseInt(boardIdStr);
           const listId = parseInt(listIdStr);
@@ -450,14 +920,16 @@ async function main() {
           const cardUrl = interaction.fields.getTextInputValue('url');
 
           if (!cardTitle) {
-            return interaction.update({
-              content: "Missing Card name."
+            return interaction.reply({
+              content: "Missing Card title.",
+              flags: [MessageFlags.Ephemeral]
             });
           }
 
           const result = await newCard(interaction.user, boardId, listId, cardTitle, cardContent, cardUrl);
-          if (!result.card) return interaction.update({
-            content: "An error occured while creating the Card. Error: " + (!result.boardExists ? "The Board does not exist." : !result.listExists ? "The List does not exist." : result.cardExists ? "The Card already exits." : '')
+          if (result.error || !result.card) return interaction.reply({
+            content: result.error ?? "An error occured while creating the Card.",
+            flags: [MessageFlags.Ephemeral]
           })
 
           await interaction.update(createListReply(result.card.list, null, false));
@@ -468,8 +940,9 @@ async function main() {
           
           const result = await moveCard(interaction.user, cardId, listId);
           if (!result.card || result.error) {
-            return interaction.update({
-              content: result.error ?? "An error occured while moving the Card."
+            return interaction.reply({
+              content: result.error ?? "An error occured while moving the Card.",
+              flags: [MessageFlags.Ephemeral]
             });
           }
 
@@ -478,10 +951,27 @@ async function main() {
           const cardId = parseInt(interaction.fields.getStringSelectValues('card')[0]);
           const listId = parseInt(interaction.fields.getStringSelectValues('list')[0]);
 
+          const card = await getCard(cardId);
+          if (!card) {
+            await interaction.reply({
+              content: 'Card does not exist.',
+              flags: [MessageFlags.Ephemeral]
+            });
+            return;
+          }
+
+          if (!checkPermission('card', interaction.user, card.board, card)) {
+            return await interaction.reply({
+              content: 'You do not have permission to move this Card.',
+              flags: [MessageFlags.Ephemeral]
+            });
+          }
+
           const result = await moveCard(interaction.user, cardId, listId);
           if (!result.card || result.error) {
-            return interaction.update({
-              content: result.error ?? "An error occured while moving the Card."
+            return interaction.reply({
+              content: result.error ?? "An error occured while moving the Card.",
+              flags: [MessageFlags.Ephemeral]
             });
           }
           
@@ -490,72 +980,72 @@ async function main() {
           const [_, boardIdStr] = interaction.customId.split('_');
           const boardId = parseInt(boardIdStr);
           const cardId = parseInt(interaction.fields.getStringSelectValues('card')[0]);
-          const option = interaction.fields.getStringSelectValues('option')[0];
           const assignees = interaction.fields.getSelectedUsers('assignee');
 
-          if (!assignees || assignees.size === 0) return interaction.update({
-            content: "No Assignees selected."
-          });
-
-          const alreadyAssigned: string[] = [];
-
-          if (option === 'unassign') {
-            for (const [id, assignee] of assignees) {
-              await cardUnassign(cardId, formatUser(assignee));
-            };
-          } else {
-            for (const [id, assignee] of assignees) {
-              const result = await cardAssign(formatUser(interaction.user), cardId, formatUser(assignee));
-              if (result.error && result.assignment) {
-                console.log(result.error)
-                alreadyAssigned.push(result.assignment.assignee.discordId);
-              }
-            };
+          const card = await editCard(interaction.user, cardId, { assignees });
+          if (!card) {
+            await interaction.reply({
+              content: 'Card does not exist.',
+              flags: [MessageFlags.Ephemeral]
+            });
+            return;
           }
 
           const board = await getBoard(boardId);
           if (!board) {
-            await interaction.update({
-              content: 'Board does not exist.'
+            await interaction.reply({
+              content: 'Board does not exist.',
+              flags: [MessageFlags.Ephemeral]
             });
             return;
           }
 
-          await interaction.update(createBoardReply(board, alreadyAssigned.length > 0 ? `Already assigned: ${alreadyAssigned.map(a => `<@${a}>`).join(', ')}` : null, false));
-        } else if (interaction.customId.startsWith('card-assign_')) {
+          await interaction.update(createBoardReply(board, null, false));
+        } else if (interaction.customId.startsWith('card-settings_')) {
           const [_, cardIdStr] = interaction.customId.split('_');
           const cardId = parseInt(cardIdStr);
-          const option = interaction.fields.getStringSelectValues('option')[0];
-          const assignees = interaction.fields.getSelectedUsers('assignee');
+          const title = interaction.fields.getTextInputValue('title');
+          const content = interaction.fields.getTextInputValue('content');
+          const url = interaction.fields.getTextInputValue('url');
+          const assignees = interaction.fields.getSelectedUsers('assignees');
+          const cardManager = interaction.fields.getSelectedUsers('cardmanager');
 
-          if (!assignees || assignees.size === 0) return interaction.update({
-            content: "No Assignees selected."
-          });
-
-          const alreadyAssigned: string[] = [];
-
-          if (option === 'unassign') {
-            assignees.each(async assignee => {
-              await cardUnassign(cardId, formatUser(assignee));
-            });
-          } else {
-            assignees.each(async assignee => {
-              const result = await cardAssign(formatUser(interaction.user), cardId, formatUser(assignee));
-              if (result.error && result.assignment) {
-                alreadyAssigned.push(result.assignment.assignee.discordId);
-              }
-            });
-          }
-
-          const card = await getCard(cardId);
-          if (!card) {
-            await interaction.update({
-              content: 'Card does not exist.'
+          const result = await editCard(interaction.user, cardId, { title, content, url, assignees, cardManager });
+          if (result.error || !result.card) {
+            await interaction.reply({
+              content: result.error,
+              flags: [MessageFlags.Ephemeral]
             });
             return;
           }
 
-          await interaction.update(createCardReply(card, alreadyAssigned.length > 0 ? `Already assigned: ${alreadyAssigned.map(a => `<@${a}>`).join(', ')}` : null, false));
+          await interaction.update(createCardReply(result.card, null, false));
+        } else if (interaction.customId.startsWith('board-card-delete_') || interaction.customId.startsWith('list-card-delete_') || interaction.customId.startsWith('card-delete_')) {
+          const cardId = parseInt(interaction.customId.startsWith('card-delete_') ? interaction.customId.split('_')[1] : interaction.fields.getStringSelectValues('card')[0]);
+          const cardTitle = interaction.fields.getTextInputValue('title');
+
+          const card = await deleteCard(interaction.user, cardId, cardTitle);
+          if (!card) {
+            return interaction.reply({
+              content: "An error occured while deleting the Card.",
+              flags: [MessageFlags.Ephemeral]
+            });
+          }
+          
+          await interaction.update(interaction.customId.startsWith('list-card-delete_') ? createListReply(card.list, null, false) : createBoardReply(card.board, null, false));
+        } else if (interaction.customId.startsWith('board-list-delete_') || interaction.customId.startsWith('list-delete_')) {
+          const listId = parseInt(interaction.customId.startsWith('list-delete_') ? interaction.customId.split('_')[1] : interaction.fields.getStringSelectValues('list')[0]);
+          const listName = interaction.fields.getTextInputValue('name');
+
+          const list = await deleteList(interaction.user, listId, listName);
+          if (!list) {
+            return interaction.reply({
+              content: "An error occured while deleting the List.",
+              flags: [MessageFlags.Ephemeral]
+            });
+          }
+          
+          await interaction.update(createBoardReply(list.board, null, false));
         }
       }
     }

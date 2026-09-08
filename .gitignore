@@ -3,7 +3,7 @@ node_modules
 .env
 config.json
 
-src/generated/prisma
+/src/generated/prisma
 node_modules/
 dist/
 

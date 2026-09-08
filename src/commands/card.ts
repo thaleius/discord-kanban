@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { cardAssign, cardUnassign, editCard, getBoard, getBoardList, getBoards, getCard, getCardHistory, moveCard, newCard } from "../helpers/db";
-import { SlashCommandBuilder, createCardReply } from "../helpers/utils";
+import { SlashCommandBuilder, checkPermission, createCardReply } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -193,6 +193,7 @@ export default createCommand({
     if (focusedOption.name === 'board') {
       const boards = await getBoards();
       const filtered = boards.filter(choice => 
+        checkPermission("view-board", interaction.user, choice) &&
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(
@@ -293,38 +294,15 @@ export default createCommand({
 
       const result = await newCard(interaction.user, list.boardId, list.id, cardTitle, cardContent, cardUrl)
 
-      if (!result.boardExists) {
+      if (result.error || !result.card) {
         await interaction.reply({
-          content: `A Board with the name \`${boardName}\` does not exist.`,
+          content: result.error ?? `An error occured while creating the Card \`${cardTitle}\`.`,
           flags: MessageFlags.Ephemeral
         });
         return;
       }
 
-      if (result.cardExists) {
-        await interaction.reply({
-          content: `A Card with the name \`${cardTitle}\` already exists on the Board \`${boardName}\`.`,
-          flags: MessageFlags.Ephemeral
-        });
-        return;
-      }
-
-      if (!result.listExists) {
-        await interaction.reply({
-          content: `A List with the name \`${listName}\` does not exist on the Board \`${boardName}\`.`,
-          flags: MessageFlags.Ephemeral
-        });
-        return;
-      }
-
-      if (!result.card) {
-        await interaction.reply({
-          content: `An error occured while creating the Card \`${cardTitle}\`.`,
-          flags: MessageFlags.Ephemeral
-        });
-      } else {
-        await interaction.reply(createCardReply(result.card, `The Card \`${result.card!.title}\` has been created successfully in the List \`${listName}\`.`));
-      }
+      await interaction.reply(createCardReply(result.card, `The Card \`${result.card!.title}\` has been created successfully in the List \`${listName}\`.`));
     } else if (subcommand === 'edit') {
       const cardId = interaction.options.getInteger('card');
 
@@ -384,7 +362,10 @@ export default createCommand({
         return;
       }
 
-      const result = await editCard(interaction.user, cardId, property, newValue);
+      const data = {} as Record<'title' | 'content' | 'url', string>;
+      data[property] = newValue;
+
+      const result = await editCard(interaction.user, cardId, data);
 
       if (!result.card) {
         await interaction.reply({
@@ -392,7 +373,7 @@ export default createCommand({
           flags: MessageFlags.Ephemeral
         });
       } else {
-        await interaction.reply(createCardReply(result.card, `The Card \`${cardId}\` has been edited. Its new \`${result.property}\` is \`${result.value}\`.`));
+        await interaction.reply(createCardReply(result.card, `The Card \`${cardId}\` has been edited. Its new \`${property}\` is \`${newValue}\`.`));
       }
     } else if (subcommand === 'assign') {
       const cardId = interaction.options.getInteger('card');
@@ -442,7 +423,7 @@ export default createCommand({
         return;
       }
 
-      const result = await cardUnassign(cardId, assignee);
+      const result = await cardUnassign(cardId, assignee.id);
       
       if (!result.card || result.error) {
         await interaction.reply({

@@ -1,7 +1,7 @@
 import { MessageFlags } from "discord.js";
 import { DISCORD } from "../../config.json";
 import { editBoard, getBoard, getBoards, newBoard } from "../helpers/db";
-import { createBoardReply, SlashCommandBuilder } from "../helpers/utils";
+import { checkPermission, createBoardReply, SlashCommandBuilder } from "../helpers/utils";
 import { createCommand } from "../utils/command";
 
 export default createCommand({
@@ -36,41 +36,42 @@ export default createCommand({
             .setDescription('Description of the Board')
             .setRequired(false)
         )
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName('edit')
-        .setDescription('Edit a Board.')
-        .addIntegerOption((option) =>
-          option
-            .setName('board')
-            .setDescription('Name of the Board to edit.')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-        .addStringOption((option) =>
-          option
-            .setName('property')
-            .setDescription('The property to edit.')
-            .setRequired(true)
-            .addChoices(
-              { name: 'name', value: 'name' },
-              { name: 'description', value: 'description' },
-            )
-        )
-        .addStringOption((option) =>
-          option
-            .setName('value')
-            .setDescription('The new value')
-            .setRequired(true)
-        )
     ),
+    // .addSubcommand((subcommand) =>
+    //   subcommand
+    //     .setName('edit')
+    //     .setDescription('Edit a Board.')
+    //     .addIntegerOption((option) =>
+    //       option
+    //         .setName('board')
+    //         .setDescription('Name of the Board to edit.')
+    //         .setRequired(true)
+    //         .setAutocomplete(true)
+    //     )
+    //     .addStringOption((option) =>
+    //       option
+    //         .setName('property')
+    //         .setDescription('The property to edit.')
+    //         .setRequired(true)
+    //         .addChoices(
+    //           { name: 'name', value: 'name' },
+    //           { name: 'description', value: 'description' },
+    //         )
+    //     )
+    //     .addStringOption((option) =>
+    //       option
+    //         .setName('value')
+    //         .setDescription('The new value')
+    //         .setRequired(true)
+    //     )
+    // ),
   async autocomplete(interaction) {
     const focusedOption = interaction.options.getFocused(true);
 
     if (focusedOption.name === 'board') {
       const boards = await getBoards();
-      const filtered = boards.filter(choice => 
+      const filtered = boards.filter(choice =>
+        checkPermission("view-board", interaction.user, choice) &&
         choice.name.toLowerCase().startsWith(focusedOption.value.toLowerCase())
       );
       await interaction.respond(
@@ -97,6 +98,14 @@ export default createCommand({
         await interaction.reply({
           content: 'The selected Board doesn\'t exist.',
           flags: MessageFlags.Ephemeral
+        });
+        return;
+      }
+
+      if (!checkPermission('view-board', interaction.user, board)) {
+        await interaction.reply({
+          content: 'You do not have permission to view this Board.',
+          flags: [MessageFlags.Ephemeral]
         });
         return;
       }
@@ -175,13 +184,19 @@ export default createCommand({
         return;
       }
 
-      const result = await editBoard(interaction.user, boardId, property, newValue);
+      const result = await editBoard(interaction.user, boardId, {
+        [property]: newValue
+      });
+      
+      if (result.error || !result.board) {
+        await interaction.reply({
+          content: result.error,
+          flags: [MessageFlags.Ephemeral]
+        });
+        return;
+      }
 
-      const message = result.success
-        ? `The Board \`${boardId}\` has been edited. Its new \`${result.property}\` is \`${result.value}\`.`
-        : `An error occured while editing the Board \`${boardId}\`.`;
-
-      await interaction.reply(createBoardReply(result.board, message));
+      await interaction.reply(createBoardReply(result.board));
     }
   },
 });

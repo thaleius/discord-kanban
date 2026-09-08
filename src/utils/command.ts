@@ -11,8 +11,8 @@ export interface CommandConfig {
     | SlashCommandBuilder
     | ContextMenuCommandBuilder
     | SlashCommandSubcommandsOnlyBuilder;
-    execute: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
-    autocomplete?: (interaction: AutocompleteInteraction) => Promise<void> | void;
+  execute: (interaction: ChatInputCommandInteraction) => Promise<void> | void;
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void> | void;
 }
 
 /** Create a command for your application.

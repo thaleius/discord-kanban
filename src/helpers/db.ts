@@ -1,8 +1,8 @@
-import { User } from 'discord.js';
+import { ReadonlyCollection, User } from 'discord.js';
 import 'dotenv/config';
 import { Prisma } from '../generated/prisma/client';
 import { prisma } from "../lib/prisma";
-import { sortCardContentHistory } from './utils';
+import { CheckBoardPermission, CheckCardPermission, checkPermission, formatUser, modifiedBy, prepareUserList, sortCardContentHistory } from './utils';
 
 export const ContentInclude = {
   createdBy: true
@@ -40,6 +40,7 @@ export const CardInclude = {
 
 export const ListInclude = {
   cards: {
+    where: { deleted: false },
     include: CardInclude
   },
   board: true,
@@ -49,9 +50,11 @@ export const ListInclude = {
 export type BoardWithListCard = Prisma.BoardGetPayload<{
   include: {
     cards: {
+      where: { deleted: false },
       include: typeof CardInclude
     },
     lists: {
+      where: { deleted: false },
       include: typeof ListInclude
     }
   }
@@ -60,6 +63,7 @@ export type BoardWithListCard = Prisma.BoardGetPayload<{
 export type BoardWithList = Prisma.BoardGetPayload<{
   include: {
     lists: {
+      where: { deleted: false },
       include: typeof ListInclude
     },
   }
@@ -68,6 +72,7 @@ export type BoardWithList = Prisma.BoardGetPayload<{
 export type BoardWithCard = Prisma.BoardGetPayload<{
   include: {
     cards: {
+      where: { deleted: false },
       include: typeof CardInclude
     },
   }
@@ -102,7 +107,13 @@ export type ContentWithDetails = Prisma.ContentHistoryGetPayload<{
 }>
 
 export const getBoards = async () => {
-  const boards = await prisma.board.findMany();
+  const boards = await prisma.board.findMany({
+    select: {
+      id: true,
+      name: true,
+      ...CheckBoardPermission
+    }
+  });
 
   return boards;
 }
@@ -114,7 +125,9 @@ export const getBoard = async (id: number) => {
       id: id
     },
     include: {
+      ...CheckBoardPermission,
       cards: {
+        where: { deleted: false },
         include: {
           assignments: {
             include: {
@@ -124,8 +137,10 @@ export const getBoard = async (id: number) => {
         }
       },
       lists: {
+        where: { deleted: false },
         include: {
           cards: {
+            where: { deleted: false },
             include: {
               assignments: {
                 include: {
@@ -142,13 +157,19 @@ export const getBoard = async (id: number) => {
   return board;
 }
 
-export const getList = async (id: number): Promise<ListWithDetails | null> => {
+export const getList = async (id: number) => {
   const list = await prisma.list.findUnique({
     relationLoadStrategy: "join",
     where: {
-      id: id
+      id: id,
+      deleted: false
     },
-    include: ListInclude
+    include: {
+      ...ListInclude,
+      board: {
+        include: CheckBoardPermission
+      }
+    },
   });
 
   return list;
@@ -169,24 +190,54 @@ export const getBoardList = async (boardName: string, listName: string) => {
   })
 }
 
-export const getCard = async (cardId: number): Promise<CardWithDetails | null> => {
+export const getCard = async (cardId: number) => {
   const card = await prisma.card.findUnique({
     relationLoadStrategy: "join",
     where: {
-      id: cardId
+      id: cardId,
+      deleted: false
     },
-    include: {
-      ...CardInclude,
-      board: {
+    select: {
+      id: true,
+      title: true,
+      content: {
         include: {
+          createdBy: true
+        }
+      },
+      url: true,
+      assignments: {
+        include: {
+          assignee: true
+        }
+      },
+      board: {
+        select: {
+          ...CheckBoardPermission,
+          name: true,
+          icon: true,
           lists: {
-            include: ListInclude
-          },
-          cards: {
-            include: CardInclude
+            where: { deleted: false },
+            select: {
+              id: true,
+              name: true
+            }
           }
         }
-      }
+      },
+      listId: true,
+      list: {
+        where: { deleted: false },
+        select: {
+          name: true
+        }
+      },
+      createdBy: {
+        select: {
+          discordId: true
+        }
+      },
+      ...CheckCardPermission
     }
   });
 
@@ -213,9 +264,11 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
     where: { name: boardName },
     include: {
       lists: {
+        where: { deleted: false },
         include: ListInclude
       },
       cards: {
+        where: { deleted: false },
         include: CardInclude
       }
     }
@@ -235,14 +288,17 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
       data: {
         name: boardName,
         description: boardDescription,
+        owner: { connect: { id: txUser.id } },
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
       include: {
       lists: {
+        where: { deleted: false },
         include: ListInclude
       },
       cards: {
+        where: { deleted: false },
         include: CardInclude
       }
     }
@@ -257,10 +313,14 @@ export const newBoard = async (userInfo: User, boardName: string, boardDescripti
   };
 }
 
-export const newList = async (userInfo: User, boardId: number, listName: string) => {
+export const newList = async (userInfo: User, boardId: number, listName: string, listDescription?: string) => {
   const board = await prisma.board.findUnique({
     where: {
       id: boardId
+    },
+    select: {
+      ...CheckBoardPermission,
+      name: true
     }
   });
   if (!board) {
@@ -269,18 +329,56 @@ export const newList = async (userInfo: User, boardId: number, listName: string)
     }; 
   }
 
+  if (!checkPermission('list', userInfo, board)) {
+    return {
+      error: `You are not permitted to create a new List for \`${board.name}\`.`
+    };
+  }
+
   const existingList = await prisma.list.findFirst({
     where: {
       name: listName,
+      deleted: false,
       board: {
         id: boardId
       }
     },
-    include: ListInclude
+    include: {
+      ...ListInclude,
+      board: {
+        include: {
+          cards: {
+            where: { deleted: false },
+            include: {
+              assignments: {
+                include: {
+                  assignee: true
+                }
+              }
+            }
+          },
+          lists: {
+            where: { deleted: false },
+            include: {
+              cards: {
+                where: { deleted: false },
+                include: {
+                  assignments: {
+                    include: {
+                      assignee: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
   if (existingList) {
     return {
-      error: `A List with the name \`${listName}\` already exists in the Board \`${existingList.board.name}\`.`,
+      error: `A List with the name \`${listName}\` already exists on the Board \`${existingList.board.name}\`.`,
       list: existingList
     }; 
   }
@@ -291,6 +389,7 @@ export const newList = async (userInfo: User, boardId: number, listName: string)
     const txList = await tx.list.create({
       data: {
         name: listName,
+        description: listDescription,
         board: {
           connect: {
             id: boardId
@@ -299,7 +398,38 @@ export const newList = async (userInfo: User, boardId: number, listName: string)
         createdBy: { connect: { id: txUser.id } },
         modifiedBy: { connect: { id: txUser.id } },
       },
-      include: ListInclude
+      include: {
+        ...ListInclude,
+        board: {
+          include: {
+            cards: {
+              where: { deleted: false },
+              include: {
+                assignments: {
+                  include: {
+                    assignee: true
+                  }
+                }
+              }
+            },
+            lists: {
+              where: { deleted: false },
+              include: {
+                cards: {
+                  where: { deleted: false },
+                  include: {
+                    assignments: {
+                      include: {
+                        assignee: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
 
     return [txUser, txList];
@@ -316,24 +446,33 @@ export const newCard = async (userInfo: User, boardId: number, listId: number, c
       id: boardId,
     },
     select: {
+      ...CheckBoardPermission,
       id: true,
+      name: true,
       cards: {
         select: { id: true },
         where: {
-          title: cardTitle
+          title: cardTitle,
+          deleted: false
         }
       }
     }
   });
   if (!board) {
     return {
-      boardExists: false
-    }; 
+      error: `The Board does not exist.`
+    };
   }
+
+  if (!checkPermission('list', userInfo, board)) {
+    return {
+      error: `You are not permitted to create a new List for \`${board.name}\`.`
+    };
+  }
+
   if (board.cards.length > 0) {
     return {
-      boardExists: true,
-      cardExists: true,
+      error: `A Card with this title already exists on this Board.`
     };
   }
 
@@ -344,10 +483,8 @@ export const newCard = async (userInfo: User, boardId: number, listId: number, c
   });
   if (!list) {
     return {
-      boardExists: true,
-      listExists: false,
-      cardExists: false,
-    }; 
+      error: `The List does not exist.`
+    };
   }
 
   const [user, newCard] = await prisma.$transaction(async (tx) => {
@@ -391,6 +528,7 @@ export const newCard = async (userInfo: User, boardId: number, listId: number, c
           include: {
             board: true,
             cards: {
+              where: { deleted: false },
               include: {
                 assignments: {
                   include: {
@@ -418,16 +556,26 @@ export const newCard = async (userInfo: User, boardId: number, listId: number, c
   });
 
   return {
-    boardExists: true,
-    listExists: true,
-    cardExists: false,
     card: newCard
   };
 }
 
-export const editBoard = async (userInfo: User, boardId: number, property: "name" | "description", newValue: string) => {
-  const data: Record<string, string> = {};
-  data[property] = newValue;
+export const editBoard = async (userInfo: User, boardId: number, { name, icon }: { name?: string, icon?: string}) => {
+  const targetBoard = await getBoard(boardId);
+  if (!targetBoard) {
+    return {
+      error: 'The Board does not exist.'
+    }
+  }
+
+  const data = {} as Record<'name' | 'icon', string>;
+
+  if (name && name !== targetBoard.name) {
+    data['name'] = name;
+  }
+  if (icon && icon !== targetBoard.icon) {
+    data['icon'] = icon;
+  }
 
   const [user, board] = await prisma.$transaction(async (tx) => {
     const txUser = await tx.user.upsert(upsertUser(userInfo));
@@ -442,9 +590,11 @@ export const editBoard = async (userInfo: User, boardId: number, property: "name
       },
       include: {
         lists: {
+          where: { deleted: false },
           include: ListInclude
         },
         cards: {
+          where: { deleted: false },
           include: CardInclude
         }
       }
@@ -453,13 +603,23 @@ export const editBoard = async (userInfo: User, boardId: number, property: "name
   });
 
   return {
-    success: board[property] === newValue,
-    property, value: board[property],
     board
   }
 }
 
 export const editList = async (userInfo: User, listId: number, property: "name" | "description", newValue: string) => {
+  const targetList = await getList(listId);
+  if (!targetList) {
+    return {
+      error: `The List does not exist.`
+    };
+  }
+  if (!checkPermission('list', userInfo, targetList.board)) {
+    return {
+      error: `You are not permitted to edit Lists of \`${targetList.board.name}\`.`
+    };
+  }
+
   const data: Record<string, string> = {};
   data[property] = newValue;
 
@@ -484,7 +644,48 @@ export const editList = async (userInfo: User, listId: number, property: "name" 
   }
 }
 
-export const editCard = async (userInfo: User, cardId: number, property: "title" | "content" | "url", newValue: string) => {
+export const editCard = async (userInfo: User, cardId: number, values: {
+  title?: string,
+  content?: string,
+  url?: string,
+  assignees?: ReadonlyCollection<string, User> | null,
+  cardManager?: ReadonlyCollection<string, User> | null
+}) => {
+  const targetCard = await getCard(cardId);
+  if (!targetCard) {
+    return {
+      error: 'The Card does not exist.'
+    };
+  }
+  if (!checkPermission('card', userInfo, targetCard.board, targetCard)) {
+    return {
+      error: `You are not permitted to edit Cards of \`${targetCard.board.name}\`.`
+    };
+  }
+
+  if (values.assignees !== undefined) {
+    const currentAssignees = targetCard.assignments.map(assignment => assignment.assignee.discordId);
+
+    for (const id of currentAssignees) {
+      if (!values.assignees?.has(id)) {
+        await cardUnassign(cardId, id);
+      }
+    }
+    
+    if (values.assignees) {
+      for (const [id, assignee] of values.assignees) {
+        if (!currentAssignees.includes(id)) {
+          await cardAssign(formatUser(userInfo), cardId, formatUser(assignee))
+        }
+      }
+    }
+  }
+
+  const { add: addCardManager, remove: removeCardManager } = prepareUserList(
+    targetCard.permittedUsers.map(user => user.discordId),
+    values.cardManager
+  )
+
   const [user, card] = await prisma.$transaction(async (tx) => {
     const txUser = await tx.user.upsert(upsertUser(userInfo));
 
@@ -498,10 +699,58 @@ export const editCard = async (userInfo: User, cardId: number, property: "title"
       include: CardInclude
     }
 
-    if (property === 'content') {
+    await tx.card.update({
+      where: { id: cardId },
+      data: {
+        permittedUsers: {
+          deleteMany: {
+            discordId: {
+              in: removeCardManager
+            }
+          }
+        },
+        modifiedBy: { connect: { id: txUser.id } }
+      }
+    });
+    
+    await Promise.all(
+      addCardManager.map((manager) =>
+        tx.card.update({
+          where: { id: cardId },
+          data: {
+            permittedUsers: {
+              connectOrCreate: {
+                where: { discordId: manager.id },
+                create: {
+                  discordId: manager.id,
+                  username: manager.username,
+                  displayName: manager.displayName
+                },
+              },
+            },
+            modifiedBy: {
+              connectOrCreate: {
+                where: { discordId: userInfo.id },
+                create: {
+                  discordId: userInfo.id,
+                  username: userInfo.username,
+                  displayName: userInfo.displayName
+                }
+              }
+            }
+          },
+        })
+      )
+    );
+
+    if (values.title) {
+      query.data.title = values.title;
+    }
+
+    if (typeof values.content === 'string' && values.content !== sortCardContentHistory(targetCard.content)[0].value) {
       query.data.content = {
         create: {
-          value: newValue || '',
+          value: values.content,
           createdBy: {
             connectOrCreate: {
               where: { discordId: userInfo.id },
@@ -514,8 +763,10 @@ export const editCard = async (userInfo: User, cardId: number, property: "title"
           }
         }
       }
-    } else {
-      query.data[property] = newValue;
+    }
+
+    if (values.url) {
+      query.data.url = values.url;
     }
 
     const txCard = await tx.card.update(query) as CardWithDetails;
@@ -523,8 +774,8 @@ export const editCard = async (userInfo: User, cardId: number, property: "title"
   });
 
   return {
-    property, value: property === 'content' ? sortCardContentHistory(card.content) : card[property], card
-  }
+    card
+  };
 }
 
 export const cardAssign = async (assigner: User | {
@@ -611,14 +862,12 @@ export const cardAssign = async (assigner: User | {
   };
 }
 
-export const cardUnassign = async (cardId: number, assignee: User | {
-  id: string, username: string | null, displayName: string | null
-}) => {
+export const cardUnassign = async (cardId: number, discordId: string) => {
   const user = await prisma.user.findUnique({
-    where: { discordId: assignee.id },
+    where: { discordId: discordId },
     select: { id: true }
   });
-  if (!user) return { error: `User <@${assignee.id}> does not exist in the database.` }
+  if (!user) return { error: `User <@${discordId}> does not exist in the database.` }
 
   const targetAssignment = await prisma.assignment.findUnique({
     where: {
@@ -632,7 +881,7 @@ export const cardUnassign = async (cardId: number, assignee: User | {
     }
   });
 
-  if (!targetAssignment) return { error: `<@${assignee.id}> is not assigned to this Card.` };
+  if (!targetAssignment) return { error: `<@${discordId}> is not assigned to this Card.` };
 
   await prisma.assignment.delete({
     where: { id: targetAssignment.id }
@@ -729,5 +978,171 @@ export const getCardHistory = async (cardId: number) => {
 
   return {
     card
+  }
+}
+
+export const deleteList = async (userInfo: User, listId: number, listName: string) => {
+  const list = await prisma.list.update({
+    where: { id: listId, name: listName, deleted: false },
+    data: {
+      deleted: true,
+      modifiedBy: modifiedBy(userInfo)
+    },
+    select: {
+      board: {
+        include: {
+          cards: {
+            where: { deleted: false },
+            include: {
+              assignments: true
+            }
+          },
+          lists: {
+            where: { deleted: false },
+            include: {
+              cards: {
+                where: { deleted: false },
+                include: {
+                  assignments: {
+                    select: {
+                      assignee: {
+                        select: {
+                          discordId: true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return list;
+}
+
+export const deleteCard = async (userInfo: User, cardId: number, cardTitle: string) => {
+  const card = await prisma.card.update({
+    where: { id: cardId, title: cardTitle, deleted: false },
+    data: {
+      deleted: true,
+      modifiedBy: modifiedBy(userInfo)
+    },
+    select: {
+      board: {
+        include: {
+          cards: {
+            where: { deleted: false },
+            include: {
+              assignments: true
+            }
+          },
+          lists: {
+            where: { deleted: false },
+            include: {
+              cards: {
+                where: { deleted: false },
+                include: {
+                  assignments: {
+                    select: {
+                      assignee: {
+                        select: {
+                          discordId: true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      list: {
+        include: {
+          board: true,
+          cards: {
+            where: { deleted: false },
+            include: {
+              assignments: {
+                include: {
+                  assignee: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return card;
+}
+
+export const boardPerms = async (userInfo: User, boardId: number, perms: {
+  boardViewer?: ReadonlyCollection<string, User> | null,
+  boardManager?: ReadonlyCollection<string, User> | null,
+  listManager?: ReadonlyCollection<string, User> | null,
+  cardManager?: ReadonlyCollection<string, User> | null
+}) => {
+  const board = await getBoard(boardId);
+  if (!board) {
+    return {
+      error: 'The Board does not exist'
+    }
+  }
+
+  for (const type in perms) {
+    const currentUsers =
+      type === 'boardViewer'
+      ? board.boardViewer
+      : type === 'boardManager'
+        ? board.boardManager
+        : type === 'listManager'
+          ? board.listManager
+          : board.cardManager;
+
+    const { add: addManager, remove: removeManager } = prepareUserList(
+      currentUsers.map(user => user.discordId),
+      perms[type as keyof typeof perms]
+    )
+
+    await prisma.board.update({
+      where: { id: boardId },
+      data: {
+        [type]: {
+          deleteMany: {
+            discordId: {
+              in: removeManager
+            }
+          }
+        },
+        modifiedBy: modifiedBy(userInfo)
+      }
+    });
+    
+    await Promise.all(
+      addManager.map((manager) =>
+        prisma.board.update({
+          where: { id: boardId },
+          data: {
+            [type]: {
+              connectOrCreate: {
+                where: { discordId: manager.id },
+                create: {
+                  discordId: manager.id,
+                  username: manager.username,
+                  displayName: manager.displayName
+                },
+              },
+            },
+            modifiedBy: modifiedBy(userInfo)
+          }
+        })
+      )
+    );
   }
 }
