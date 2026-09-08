@@ -111,41 +111,6 @@ const createCardSelect = (cards: Card[]) => {
   return null;
 }
 
-const createCardEditButtons = (card: Card & Prisma.CardGetPayload<{
-  include: {
-    board: true,
-    list: true,
-    content: {
-      include: {
-        createdBy: true
-      }
-    },
-    assignments: {
-      include: {
-        assignee: true
-      }
-    }
-  }
-}>) => {
-  return [
-    new ButtonBuilder()
-      .setCustomId(`card-edit_${card.board.name}_${card.id}_title`)
-      .setLabel('Title')
-      .setEmoji('✏️')
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId(`card-edit_${card.board.name}_${card.id}_content`)
-      .setLabel('Content')
-      .setEmoji('✏️')
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId(`card-edit_${card.board.name}_${card.id}_url`)
-      .setLabel('URL')
-      .setEmoji('✏️')
-      .setStyle(ButtonStyle.Secondary)
-  ]
-}
-
 export const createBoardEmbed = (board: Prisma.BoardGetPayload<{
   include: {
     lists: {

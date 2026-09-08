@@ -227,7 +227,6 @@ export const getCard = async (cardId: number) => {
       },
       listId: true,
       list: {
-        where: { deleted: false },
         select: {
           name: true
         }
